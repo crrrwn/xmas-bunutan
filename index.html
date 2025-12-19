@@ -20,7 +20,6 @@
             background-color: var(--c-teal);
             color: var(--c-teal);
             margin: 0;
-            /* Use dvh for modern mobile browsers (avoids jumpy address bar) */
             min-height: 100vh;
             min-height: 100dvh; 
             display: flex;
@@ -30,17 +29,35 @@
             background-image: linear-gradient(180deg, var(--c-teal) 0%, #043e40 100%);
         }
 
-        .snow-bg {
+        /* --- NEW DYNAMIC BACKGROUND --- */
+        .falling-bg {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
             pointer-events: none; z-index: 0;
-            background-image: url('data:image/svg+xml;base64,PHN2ZyB2ZXJzaW9uPSIxLjEiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyIgd2lkdGg9IjIwIiBoZWlnaHQ9IjIwIj48Y2lyY2xlIGN4PSIxMCIgY3k9IjEwIiByPSIxLjUiIGZpbGw9InJnYmEoMjU1LDI1NSwyNTUsMC4zKSIvPjwvc3ZnPg==');
-            animation: snow 20s linear infinite;
+            overflow: hidden;
         }
-        @keyframes snow { from {background-position: 0 0;} to {background-position: 0 500px;}}
+
+        .fall-item {
+            position: absolute;
+            top: -10%;
+            user-select: none;
+            z-index: 1;
+            opacity: 0.8;
+            animation-name: fallDown;
+            animation-timing-function: linear;
+            animation-iteration-count: infinite;
+        }
+
+        @keyframes fallDown {
+            0% { transform: translateY(0) rotate(0deg); opacity: 0; }
+            10% { opacity: 0.8; }
+            90% { opacity: 0.8; }
+            100% { transform: translateY(110vh) rotate(360deg); opacity: 0; }
+        }
+        /* ------------------------------ */
 
         .app-container { 
             width: 90%; 
-            max-width: 450px; /* Limits width on desktop */
+            max-width: 450px; 
             text-align: center; 
             z-index: 10;
             position: relative;
@@ -53,11 +70,10 @@
             padding: 2rem 1.5rem;
             box-shadow: 0 15px 40px rgba(0, 0, 0, 0.4);
             animation: popUp 0.5s ease;
-            max-height: 90vh; /* Prevent card from being taller than screen */
-            overflow-y: auto; /* Allow scroll only inside card if needed */
+            max-height: 90vh; 
+            overflow-y: auto; 
         }
         
-        /* Hide scrollbar in card */
         .glass-card::-webkit-scrollbar { display: none; }
 
         @keyframes popUp { from { opacity: 0; transform: scale(0.9); } to { opacity: 1; transform: scale(1); } }
@@ -97,9 +113,8 @@
         .btn-main:active { transform: translateY(4px); box-shadow: 0 3px 0 #c22f25; }
         .btn-main:disabled { background: #ccc; box-shadow: none; cursor: not-allowed; }
 
-        /* Responsive Tap Area */
         .tap-area {
-            height: 280px; /* Default height */
+            height: 280px; 
             margin: 20px 0; display: flex; flex-direction: column; align-items: center; 
             justify-content: center; background: #fff; border: 4px dashed var(--c-red);
             border-radius: 20px; cursor: pointer; position: relative;
@@ -107,7 +122,6 @@
         .tap-text { font-size: 2rem; font-weight: 800; color: var(--c-red); line-height: 1; }
         .tap-sub { font-size: 1.2rem; margin-top: 10px; font-weight: 600; }
 
-        /* Mobile specific adjustments */
         @media (max-height: 700px) {
             .tap-area { height: 200px; margin: 10px 0; }
             .tap-text { font-size: 1.5rem; }
@@ -122,7 +136,7 @@
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
 
         .winner-reveal { 
-            font-size: clamp(2rem, 5vw, 2.8rem); /* Responsive font size */
+            font-size: clamp(2rem, 5vw, 2.8rem); 
             font-weight: 800; margin: 20px 0; word-wrap: break-word; line-height: 1.1;
             padding: 20px; background: rgba(255,255,255,0.5); border-radius: 15px;
         }
@@ -134,7 +148,9 @@
     </style>
 </head>
 <body>
-    <div class="snow-bg"></div>
+    
+    <div class="falling-bg" id="fallingContainer"></div>
+
     <div class="app-container">
 
         <div id="reg-screen" class="glass-card">
@@ -190,6 +206,7 @@
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
         import { getFirestore, collection, addDoc, getDocs, query, where, doc, runTransaction, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
+        // *** CREDENTIALS ***
         const firebaseConfig = {
             apiKey: "AIzaSyAaNAfsW4mMcamcB0RUQnD9Pf4hxALybo8",
             authDomain: "christmasbunutan.firebaseapp.com",
@@ -202,6 +219,29 @@
 
         const app = initializeApp(firebaseConfig);
         const db = getFirestore(app);
+
+        // --- NEW: FALLING BACKGROUND LOGIC ---
+        (function startFallingAnimation() {
+            const container = document.getElementById('fallingContainer');
+            // Dito mo i-set ang mga emojis na gusto mo mahulog
+            const emojis = ['❄️', '🎁', '🍬', '🍭', '🎄', '✨'];
+            const itemCount = 30; // Dami ng items
+
+            for (let i = 0; i < itemCount; i++) {
+                const el = document.createElement('div');
+                el.classList.add('fall-item');
+                el.innerText = emojis[Math.floor(Math.random() * emojis.length)];
+                
+                // Random Settings
+                el.style.left = Math.random() * 100 + 'vw'; // Random horizontal position
+                el.style.animationDuration = (Math.random() * 5 + 5) + 's'; // Speed (5s to 10s)
+                el.style.animationDelay = (Math.random() * 5) + 's'; // Delay
+                el.style.fontSize = (Math.random() * 1.5 + 1) + 'rem'; // Random Size
+                
+                container.appendChild(el);
+            }
+        })();
+        // -------------------------------------
 
         let currentMode = 'solo';
         let playerQueue = []; 

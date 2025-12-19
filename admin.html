@@ -28,7 +28,7 @@
 
         /* --- MODAL STYLES --- */
         .modal-overlay {
-            display: none; /* Hidden by default */
+            display: none;
             position: fixed;
             top: 0; left: 0; width: 100%; height: 100%;
             background: rgba(0,0,0,0.6);
@@ -51,109 +51,58 @@
             border: 4px solid var(--c-pink);
         }
 
+        .modal-title { font-size: 1.4rem; color: #333; margin: 10px 0 5px 0; font-weight: 700; }
+        .modal-desc { font-size: 0.9rem; color: #666; margin-bottom: 20px; }
+
         .modal-actions {
             display: flex;
-            gap: 15px;
-            margin-top: 25px;
+            gap: 10px;
             justify-content: center;
         }
 
-        .btn-modal-cancel { background: #eee !important; color: #555 !important; }
-        .btn-modal-confirm { background: var(--c-red) !important; color: white !important; box-shadow: 0 5px 15px rgba(255, 63, 51, 0.3); }
-        .btn-modal-ok { background: var(--c-teal) !important; color: white !important; width: 100%; }
+        /* Buttons inside Modal */
+        .modal-btn {
+            padding: 10px 20px; border-radius: 10px; border: none; font-weight: 600; cursor: pointer; flex: 1;
+        }
+        .btn-cancel { background: #eee; color: #555; }
+        .btn-confirm { background: var(--c-red); color: white; box-shadow: 0 4px 10px rgba(255, 63, 51, 0.3); }
+        .btn-ok { background: var(--c-teal); color: white; width: 100%; }
 
         @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
         @keyframes slideUp { from { transform: translateY(20px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
 
-        /* --- LOGIN SCREEN STYLES --- */
+        /* --- LOGIN STYLES --- */
         .login-container {
-            width: 90%;
-            max-width: 400px;
-            margin: 20vh auto;
-            background: var(--c-pink);
-            padding: 40px 30px;
-            border-radius: 20px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            text-align: center;
+            width: 90%; max-width: 400px; margin: 20vh auto;
+            background: var(--c-pink); padding: 40px 30px;
+            border-radius: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+            display: flex; flex-direction: column; align-items: center; text-align: center;
         }
 
-        /* Group Icon and Text tightly */
-        .login-header {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            gap: 10px; /* Space between Icon and Text */
-            margin-bottom: 25px;
-        }
+        .login-header { display: flex; flex-direction: column; align-items: center; gap: 10px; margin-bottom: 25px; }
+        .login-header h2 { margin: 0; color: var(--c-teal); font-size: 1.8rem; line-height: 1; }
 
-        .login-header h2 {
-            margin: 0;
-            color: var(--c-teal);
-            font-size: 1.8rem;
-            line-height: 1;
-        }
+        .password-wrapper { position: relative; width: 100%; margin-bottom: 15px; }
+        .password-toggle { position: absolute; right: 15px; top: 50%; transform: translateY(-50%); cursor: pointer; color: var(--c-teal); font-size: 1.4rem; opacity: 0.6; }
+        
+        input { width: 100%; padding: 15px; border: 2px solid #ddd; border-radius: 10px; font-family: inherit; box-sizing: border-box; font-size: 1rem; }
+        input[type="password"], input#adminPass { padding-right: 45px; }
 
-        /* Password Wrapper */
-        .password-wrapper {
-            position: relative;
-            width: 100%;
-            margin-bottom: 15px;
-        }
-
-        .password-toggle {
-            position: absolute;
-            right: 15px;
-            top: 50%;
-            transform: translateY(-50%);
-            cursor: pointer;
-            color: var(--c-teal);
-            font-size: 1.4rem;
-            opacity: 0.6;
-            transition: 0.2s;
-        }
-        .password-toggle:hover { opacity: 1; }
-
-        /* General Inputs */
-        input {
-            width: 100%; padding: 15px; border: 2px solid #ddd; border-radius: 10px;
-            font-family: inherit; box-sizing: border-box; font-size: 1rem;
-        }
-        /* Padding for password to avoid hitting eye icon */
-        input[type="password"], input#adminPass { padding-right: 45px; } 
-
-        .dashboard-container {
-            max-width: 1200px; margin: 0 auto; display: none; width: 100%;
-        }
-
-        header {
-            display: flex; justify-content: space-between; align-items: center;
-            margin-bottom: 25px; color: var(--c-pink); flex-wrap: wrap; gap: 15px;
-            background: rgba(0,0,0,0.2); padding: 15px; border-radius: 15px;
-        }
-
+        /* --- DASHBOARD STYLES --- */
+        .dashboard-container { max-width: 1200px; margin: 0 auto; display: none; width: 100%; }
+        header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px; color: var(--c-pink); flex-wrap: wrap; gap: 15px; background: rgba(0,0,0,0.2); padding: 15px; border-radius: 15px; }
         .header-left { display: flex; align-items: center; gap: 15px; }
         header h1 { margin: 0; font-size: clamp(1.2rem, 4vw, 1.8rem); }
         .header-actions { display: flex; gap: 10px; }
 
-        .stat-cards {
-            display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 15px; margin-bottom: 30px;
-        }
-
-        .card {
-            background: var(--glass); padding: 20px; border-radius: 15px;
-            box-shadow: 0 5px 15px rgba(0,0,0,0.1); border-bottom: 5px solid var(--c-red);
-        }
+        .stat-cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 15px; margin-bottom: 30px; }
+        .card { background: var(--glass); padding: 20px; border-radius: 15px; box-shadow: 0 5px 15px rgba(0,0,0,0.1); border-bottom: 5px solid var(--c-red); }
         .card h3 { margin: 0; font-size: 0.85rem; color: #666; text-transform: uppercase; letter-spacing: 0.5px; }
         .card .number { font-size: 2.5rem; font-weight: 700; color: var(--c-teal); }
 
         .main-grid { display: grid; grid-template-columns: 2fr 1.5fr; gap: 20px; }
-
         @media (max-width: 768px) {
-            body { padding: 15px; }
-            .main-grid { grid-template-columns: 1fr; } 
+            body { padding: 15px; } .main-grid { grid-template-columns: 1fr; } 
             header { flex-direction: column; align-items: flex-start; }
             .header-actions { width: 100%; justify-content: space-between; }
             .header-actions button { width: 48%; }
@@ -166,24 +115,16 @@
         .list-container { max-height: 500px; overflow-y: auto; margin-top: 15px; padding-right: 5px; }
         .list-container::-webkit-scrollbar { width: 6px; }
         .list-container::-webkit-scrollbar-thumb { background-color: #ccc; border-radius: 10px; }
-
         .list-item { display: flex; justify-content: space-between; align-items: flex-start; padding: 12px; border-bottom: 1px solid #eee; font-size: 0.9rem; }
         .list-item:last-child { border-bottom: none; }
-
         .status-badge { padding: 4px 10px; border-radius: 20px; font-size: 0.7rem; font-weight: 600; white-space: nowrap; margin-top: 5px; }
         .status-done { background: var(--c-green); color: var(--c-teal); }
         
         textarea { width: 100%; padding: 12px; border: 2px solid #ddd; border-radius: 10px; font-family: inherit; box-sizing: border-box; margin-bottom: 10px; height: 120px; resize: vertical; }
 
-        button {
-            background: var(--c-red); color: white; border: none; padding: 12px;
-            border-radius: 10px; cursor: pointer; font-weight: 600; width: 100%;
-            transition: 0.2s; font-family: 'Poppins', sans-serif;
-            display: flex; justify-content: center; align-items: center; gap: 8px;
-        }
+        button { background: var(--c-red); color: white; border: none; padding: 12px; border-radius: 10px; cursor: pointer; font-weight: 600; width: 100%; transition: 0.2s; font-family: 'Poppins', sans-serif; display: flex; justify-content: center; align-items: center; gap: 8px; }
         button:hover { opacity: 0.9; transform: translateY(-2px); }
         .btn-outline { background: transparent; border: 2px solid var(--c-red); color: var(--c-red); }
-        
         .btn-refresh { background: var(--c-pink); color: var(--c-teal); }
         .btn-logout { background: #333; color: white; }
     </style>
@@ -195,12 +136,10 @@
             <span class="iconify" data-icon="solar:lock-password-bold-duotone" style="font-size: 4rem; color: var(--c-teal);"></span>
             <h2>Admin Login</h2>
         </div>
-        
         <div class="password-wrapper">
             <input type="password" id="adminPass" placeholder="Enter Password">
             <span class="iconify password-toggle" id="pass-icon" data-icon="solar:eye-closed-bold" onclick="togglePassword()"></span>
         </div>
-
         <button onclick="checkPass()">Unlock Dashboard</button>
     </div>
 
@@ -212,12 +151,11 @@
                     <small style="opacity: 0.8;">Christmas Bunutan 2025</small>
                 </div>
             </div>
-            
             <div class="header-actions">
                 <button onclick="location.reload()" class="btn-refresh" style="width: auto;">
                     <span class="iconify" data-icon="mingcute:refresh-2-line"></span> Refresh Data
                 </button>
-                <button onclick="openLogoutModal()" class="btn-logout" style="width: auto;">
+                <button onclick="triggerLogout()" class="btn-logout" style="width: auto;">
                     <span class="iconify" data-icon="solar:logout-2-bold"></span> Logout
                 </button>
             </div>
@@ -245,7 +183,7 @@
                 <div class="list-container" id="participants-list">
                     <div style="text-align: center; padding: 20px; color: #999;">Loading...</div>
                 </div>
-                <button class="btn-outline" onclick="resetRegistrations()" style="margin-top: 20px; font-size: 0.8rem;">
+                <button class="btn-outline" onclick="triggerResetRegistrations()" style="margin-top: 20px; font-size: 0.8rem;">
                     <span class="iconify" data-icon="solar:trash-bin-trash-bold"></span> Reset Participants
                 </button>
             </div>
@@ -262,34 +200,32 @@
                 </button>
                 <p id="status" style="text-align: center; font-size: 0.8rem; margin-top: 10px; min-height: 20px;"></p>
                 <hr style="margin: 20px 0; border: 0; border-top: 1px dashed #ccc;">
-                <button style="background: #333;" onclick="resetPool()">
+                <button style="background: #333;" onclick="triggerResetPool()">
                     <span class="iconify" data-icon="solar:danger-triangle-bold"></span> Delete All Names
                 </button>
             </div>
         </div>
     </div>
 
-    <div id="logoutModal" class="modal-overlay">
+    <div id="messageModal" class="modal-overlay">
         <div class="modal-content">
-            <span class="iconify" data-icon="solar:logout-2-bold-duotone" style="font-size: 3.5rem; color: var(--c-red); margin-bottom: 10px;"></span>
-            <h3 style="margin: 0; color: #333; font-size: 1.5rem;">Log Out?</h3>
-            <p style="color: #666; font-size: 0.9rem; margin-top: 5px;">Are you sure you want to end your admin session?</p>
-            
+            <span id="msgIcon" class="iconify" style="font-size: 3.5rem; margin-bottom: 10px;"></span>
+            <h3 id="msgTitle" class="modal-title">Title</h3>
+            <p id="msgBody" class="modal-desc">Message body here.</p>
             <div class="modal-actions">
-                <button class="btn-modal-cancel" onclick="closeLogoutModal()">Cancel</button>
-                <button class="btn-modal-confirm" onclick="confirmLogout()">Yes, Logout</button>
+                <button class="modal-btn btn-ok" onclick="closeMessageModal()">OK</button>
             </div>
         </div>
     </div>
 
-    <div id="errorModal" class="modal-overlay">
-        <div class="modal-content" style="border-color: var(--c-red);">
-            <span class="iconify" data-icon="solar:forbidden-circle-bold-duotone" style="font-size: 3.5rem; color: var(--c-red); margin-bottom: 10px;"></span>
-            <h3 style="margin: 0; color: #333; font-size: 1.5rem;">Access Denied</h3>
-            <p style="color: #666; font-size: 0.9rem; margin-top: 5px;">Wrong password. Please try again.</p>
-            
+    <div id="confirmModal" class="modal-overlay">
+        <div class="modal-content">
+            <span class="iconify" data-icon="solar:question-circle-bold-duotone" style="font-size: 3.5rem; color: var(--c-red); margin-bottom: 10px;"></span>
+            <h3 id="confTitle" class="modal-title">Are you sure?</h3>
+            <p id="confBody" class="modal-desc">This action cannot be undone.</p>
             <div class="modal-actions">
-                <button class="btn-modal-ok" onclick="closeErrorModal()">Try Again</button>
+                <button class="modal-btn btn-cancel" onclick="closeConfirmModal()">Cancel</button>
+                <button class="modal-btn btn-confirm" id="btnConfirmAction">Yes, Proceed</button>
             </div>
         </div>
     </div>
@@ -312,57 +248,40 @@
         const app = initializeApp(firebaseConfig);
         const db = getFirestore(app);
 
-        // --- AUTHENTICATION & SESSION HANDLING ---
-        
+        // --- AUTH & SESSION ---
         window.addEventListener('load', () => {
             const isLoggedIn = localStorage.getItem('adminLoggedIn');
-            if (isLoggedIn === 'true') {
-                showDashboard();
-            }
+            if (isLoggedIn === 'true') showDashboard();
         });
 
-        // Toggle Password Show/Hide
         window.togglePassword = function() {
             const input = document.getElementById('adminPass');
             const icon = document.getElementById('pass-icon');
             if(input.type === "password") {
                 input.type = "text";
-                icon.setAttribute("data-icon", "solar:eye-bold"); // Change to open eye
+                icon.setAttribute("data-icon", "solar:eye-bold");
             } else {
                 input.type = "password";
-                icon.setAttribute("data-icon", "solar:eye-closed-bold"); // Change to closed eye
+                icon.setAttribute("data-icon", "solar:eye-closed-bold");
             }
         }
 
         window.checkPass = function() {
             const pass = document.getElementById('adminPass').value;
             if(pass === "pasko2025") { 
-                localStorage.setItem('adminLoggedIn', 'true'); // Save session
+                localStorage.setItem('adminLoggedIn', 'true');
                 showDashboard();
             } else { 
-                // Show Error Modal instead of alert
-                document.getElementById('errorModal').style.display = 'flex';
+                // Show Error Modal
+                showMessage("Access Denied", "Wrong password. Please try again.", "error");
             }
         }
 
-        window.closeErrorModal = function() {
-            document.getElementById('errorModal').style.display = 'none';
-            document.getElementById('adminPass').value = ''; // Clear input
-            document.getElementById('adminPass').focus();
-        }
-
-        // --- MODAL FUNCTIONS ---
-        window.openLogoutModal = function() {
-            document.getElementById('logoutModal').style.display = 'flex';
-        }
-
-        window.closeLogoutModal = function() {
-            document.getElementById('logoutModal').style.display = 'none';
-        }
-
-        window.confirmLogout = function() {
-            localStorage.removeItem('adminLoggedIn'); // Clear session
-            location.reload(); // Reload to show login screen
+        window.triggerLogout = function() {
+            showConfirm("Log Out?", "Are you sure you want to end your admin session?", () => {
+                localStorage.removeItem('adminLoggedIn');
+                location.reload();
+            });
         }
 
         function showDashboard() {
@@ -371,7 +290,96 @@
             startListeners();
         }
 
-        // --- REAL-TIME LISTENERS ---
+        // --- MODAL SYSTEM LOGIC ---
+        
+        // Message Modal (Alert replacement)
+        window.showMessage = function(title, body, type = 'info') {
+            const modal = document.getElementById('messageModal');
+            const icon = document.getElementById('msgIcon');
+            
+            document.getElementById('msgTitle').innerText = title;
+            document.getElementById('msgBody').innerText = body;
+
+            if(type === 'error') {
+                icon.setAttribute('data-icon', 'solar:forbidden-circle-bold-duotone');
+                icon.style.color = 'var(--c-red)';
+            } else {
+                icon.setAttribute('data-icon', 'solar:check-circle-bold-duotone');
+                icon.style.color = 'var(--c-green)';
+            }
+            modal.style.display = 'flex';
+        }
+
+        window.closeMessageModal = function() {
+            document.getElementById('messageModal').style.display = 'none';
+        }
+
+        // Confirm Modal (Confirm replacement)
+        let confirmAction = null;
+
+        window.showConfirm = function(title, body, callback) {
+            const modal = document.getElementById('confirmModal');
+            document.getElementById('confTitle').innerText = title;
+            document.getElementById('confBody').innerText = body;
+            modal.style.display = 'flex';
+            
+            // Unbind previous click events to prevent stacking
+            const btn = document.getElementById('btnConfirmAction');
+            btn.onclick = function() {
+                callback();
+                closeConfirmModal();
+            };
+        }
+
+        window.closeConfirmModal = function() {
+            document.getElementById('confirmModal').style.display = 'none';
+        }
+
+        // --- CORE FUNCTIONS (Updated to use Modals) ---
+
+        window.triggerResetPool = function() {
+            showConfirm("Delete All Names?", "This will remove everyone from the Tambiyolo. Cannot be undone.", async () => {
+                const q = await getDocs(collection(db, "participants"));
+                q.forEach(async (d) => { await deleteDoc(doc(db, "participants", d.id)); });
+                showMessage("Success", "All names have been deleted.", "success");
+            });
+        }
+
+        window.triggerResetRegistrations = function() {
+            showConfirm("Reset Participants?", "This clears the list of joined users. History will be lost.", async () => {
+                const r = await getDocs(collection(db, "registrations"));
+                r.forEach(async (d) => { await deleteDoc(doc(db, "registrations", d.id)); });
+                showMessage("Success", "Participant list cleared.", "success");
+            });
+        }
+
+        window.uploadNames = async function() {
+            const btn = document.getElementById('uploadBtn');
+            const textarea = document.getElementById('namesList');
+            const status = document.getElementById('status');
+            status.innerHTML = "Uploading..."; btn.disabled = true;
+            
+            const cleanNames = textarea.value.split('\n').map(n => n.trim()).filter(n => n.length > 0);
+            if (cleanNames.length === 0) { 
+                status.innerHTML = ""; 
+                showMessage("Empty List", "Please enter at least one name.", "error");
+                btn.disabled = false; return; 
+            }
+
+            const batch = writeBatch(db);
+            cleanNames.forEach(name => {
+                batch.set(doc(collection(db, "participants")), { name: name, isTaken: false, createdAt: new Date() });
+            });
+
+            try { 
+                await batch.commit(); 
+                status.innerHTML = "";
+                showMessage("Upload Complete", `Successfully added ${cleanNames.length} names to the pool!`, "success");
+                textarea.value = ""; 
+            } 
+            catch (e) { console.error(e); status.innerHTML = "Error."; }
+            btn.disabled = false;
+        }
 
         function startListeners() {
             onSnapshot(query(collection(db, "registrations"), orderBy("timestamp", "desc")), (snapshot) => {
@@ -380,21 +388,13 @@
                 snapshot.forEach(doc => {
                     const data = doc.data();
                     const participants = data.participants || [];
-                    
-                    let nameDisplay = "";
-                    if (data.mode === 'solo') {
-                        nameDisplay = participants[0];
-                    } else {
-                        nameDisplay = `Group (${participants.length}): ${participants.join(", ")}`;
-                    }
-
+                    let nameDisplay = data.mode === 'solo' ? participants[0] : `Group (${participants.length}): ${participants.join(", ")}`;
                     html += `<div class="list-item">
                             <div style="flex: 1; padding-right: 10px;">
                                 <span style="font-weight:600; color:var(--c-teal); display:block; word-wrap: break-word;">${nameDisplay.toUpperCase()}</span>
                                 <div style="font-size:0.7rem; color:#888;">${new Date(data.timestamp.toDate()).toLocaleTimeString()}</div>
                             </div>
                             <span class="status-badge status-done">JOINED</span></div>`;
-                    
                     totalUsers += participants.length;
                 });
                 document.getElementById('participants-list').innerHTML = html || "<div style='text-align:center; padding:10px;'>No one yet.</div>";
@@ -416,38 +416,6 @@
                 document.getElementById('count-pool').innerText = totalPool;
                 document.getElementById('count-done').innerText = takenCount;
             });
-        }
-
-        window.uploadNames = async function() {
-            const btn = document.getElementById('uploadBtn');
-            const textarea = document.getElementById('namesList');
-            const status = document.getElementById('status');
-            status.innerHTML = "Uploading..."; btn.disabled = true;
-            
-            const cleanNames = textarea.value.split('\n').map(n => n.trim()).filter(n => n.length > 0);
-            if (cleanNames.length === 0) { status.innerHTML = "Empty!"; btn.disabled = false; return; }
-
-            const batch = writeBatch(db);
-            cleanNames.forEach(name => {
-                batch.set(doc(collection(db, "participants")), { name: name, isTaken: false, createdAt: new Date() });
-            });
-
-            try { await batch.commit(); status.innerHTML = `Added ${cleanNames.length} names!`; textarea.value = ""; } 
-            catch (e) { console.error(e); status.innerHTML = "Error."; }
-            btn.disabled = false;
-        }
-
-        window.resetPool = async function() {
-            if(confirm("Delete ALL names?")) {
-                const q = await getDocs(collection(db, "participants"));
-                q.forEach(async (d) => { await deleteDoc(doc(db, "participants", d.id)); });
-            }
-        }
-        window.resetRegistrations = async function() {
-            if(confirm("Clear participants?")) {
-                const r = await getDocs(collection(db, "registrations"));
-                r.forEach(async (d) => { await deleteDoc(doc(db, "registrations", d.id)); });
-            }
         }
     </script>
 </body>
