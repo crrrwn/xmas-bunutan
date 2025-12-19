@@ -1,0 +1,313 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard - Bunutan 2025</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <script src="https://code.iconify.design/3/3.1.0/iconify.min.js"></script>
+    
+    <style>
+        :root {
+            --c-red: #FF3F33;
+            --c-pink: #FFE6E1;
+            --c-teal: #075B5E;
+            --c-green: #9FC87E;
+            --glass: rgba(255, 255, 255, 0.95);
+        }
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            background-color: var(--c-teal);
+            color: #333;
+            margin: 0;
+            padding: 20px;
+            min-height: 100vh;
+            box-sizing: border-box;
+        }
+
+        /* Responsive Login */
+        .login-container {
+            width: 90%;
+            max-width: 400px;
+            margin: 10vh auto;
+            background: var(--c-pink);
+            padding: 30px;
+            border-radius: 20px;
+            text-align: center;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+        }
+
+        .dashboard-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: none;
+            width: 100%;
+        }
+
+        /* Responsive Header */
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 25px;
+            color: var(--c-pink);
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+
+        header h1 { margin: 0; font-size: clamp(1.2rem, 4vw, 1.8rem); }
+        
+        /* Stats Grid - Auto fit */
+        .stat-cards {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 15px;
+            margin-bottom: 30px;
+        }
+
+        .card {
+            background: var(--glass);
+            padding: 20px;
+            border-radius: 15px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            border-bottom: 5px solid var(--c-red);
+        }
+        .card h3 { margin: 0; font-size: 0.85rem; color: #666; text-transform: uppercase; letter-spacing: 0.5px; }
+        .card .number { font-size: 2.5rem; font-weight: 700; color: var(--c-teal); }
+
+        /* Main Content Grid */
+        .main-grid {
+            display: grid;
+            grid-template-columns: 2fr 1.5fr; /* Mas malaki space ng listahan sa desktop */
+            gap: 20px;
+        }
+
+        /* MOBILE ADJUSTMENTS */
+        @media (max-width: 768px) {
+            body { padding: 15px; }
+            .main-grid { grid-template-columns: 1fr; } /* Stack columns vertically */
+            header { flex-direction: column; align-items: flex-start; }
+            header button { width: 100%; }
+            .stat-cards { grid-template-columns: 1fr; } /* 1 card per row on small phones */
+        }
+
+        .panel {
+            background: var(--glass);
+            padding: 25px;
+            border-radius: 15px;
+            height: fit-content;
+        }
+
+        h2 { color: var(--c-teal); display: flex; align-items: center; gap: 10px; font-size: 1.1rem; margin-top: 0; }
+
+        /* Scrollable Lists */
+        .list-container {
+            max-height: 500px; /* Taller on desktop */
+            overflow-y: auto;
+            margin-top: 15px;
+            padding-right: 5px;
+        }
+        
+        /* Custom Scrollbar */
+        .list-container::-webkit-scrollbar { width: 6px; }
+        .list-container::-webkit-scrollbar-thumb { background-color: #ccc; border-radius: 10px; }
+
+        .list-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px;
+            border-bottom: 1px solid #eee;
+            font-size: 0.9rem;
+        }
+        .list-item:last-child { border-bottom: none; }
+
+        .status-badge {
+            padding: 4px 10px;
+            border-radius: 20px;
+            font-size: 0.7rem;
+            font-weight: 600;
+            white-space: nowrap;
+        }
+        .status-done { background: var(--c-green); color: var(--c-teal); }
+        
+        /* Inputs */
+        textarea, input {
+            width: 100%; padding: 12px; border: 2px solid #ddd; border-radius: 10px;
+            font-family: inherit; box-sizing: border-box; margin-bottom: 10px;
+        }
+        textarea { height: 120px; resize: vertical; }
+
+        button {
+            background: var(--c-red); color: white; border: none; padding: 12px;
+            border-radius: 10px; cursor: pointer; font-weight: 600; width: 100%;
+            transition: 0.2s; font-family: 'Poppins', sans-serif;
+            display: flex; justify-content: center; align-items: center; gap: 8px;
+        }
+        button:hover { opacity: 0.9; transform: translateY(-2px); }
+        .btn-outline { background: transparent; border: 2px solid var(--c-red); color: var(--c-red); }
+    </style>
+</head>
+<body>
+
+    <div class="login-container" id="login-panel">
+        <span class="iconify" data-icon="solar:lock-password-bold-duotone" style="font-size: 3rem; color: var(--c-teal);"></span>
+        <h2 style="color: var(--c-teal);">Admin Login</h2>
+        <input type="password" id="adminPass" placeholder="Enter Password">
+        <button onclick="checkPass()">Unlock Dashboard</button>
+    </div>
+
+    <div class="dashboard-container" id="admin-panel">
+        <header>
+            <div>
+                <h1>🎄 Admin Dashboard</h1>
+                <small style="opacity: 0.8;">Christmas Bunutan 2025</small>
+            </div>
+            <button onclick="location.reload()" style="width: auto; background: var(--c-pink); color: var(--c-teal);">
+                <span class="iconify" data-icon="mingcute:refresh-2-line"></span> Refresh Data
+            </button>
+        </header>
+
+        <div class="stat-cards">
+            <div class="card" style="border-color: var(--c-red);">
+                <h3>Total in Tambiyolo</h3>
+                <div class="number" id="count-pool">0</div>
+            </div>
+            <div class="card" style="border-color: var(--c-green);">
+                <h3>Joined Users</h3>
+                <div class="number" id="count-users">0</div>
+            </div>
+            <div class="card" style="border-color: var(--c-teal);">
+                <h3>Already Picked</h3>
+                <div class="number" id="count-done">0</div>
+            </div>
+        </div>
+
+        <div class="main-grid">
+            <div class="panel">
+                <h2><span class="iconify" data-icon="solar:users-group-rounded-bold-duotone"></span> Who Joined?</h2>
+                <p style="font-size: 0.8rem; color: #666;">List of participants. <span style="color:var(--c-red)">Picks are hidden.</span></p>
+                <div class="list-container" id="participants-list">
+                    <div style="text-align: center; padding: 20px; color: #999;">Loading...</div>
+                </div>
+                <button class="btn-outline" onclick="resetRegistrations()" style="margin-top: 20px; font-size: 0.8rem;">
+                    <span class="iconify" data-icon="solar:trash-bin-trash-bold"></span> Reset Participants
+                </button>
+            </div>
+
+            <div class="panel">
+                <h2><span class="iconify" data-icon="solar:box-minimalistic-bold-duotone"></span> Name Pool</h2>
+                <div class="list-container" id="pool-list" style="max-height: 200px; background: #fff; padding: 10px; border-radius: 10px; border: 1px solid #eee; margin-bottom: 20px;">
+                </div>
+                
+                <label style="font-size: 0.8rem; font-weight: bold;">Add Names (Enter key to separate):</label>
+                <textarea id="namesList" placeholder="Name 1&#10;Name 2"></textarea>
+                <button id="uploadBtn" onclick="uploadNames()">
+                    <span class="iconify" data-icon="solar:upload-bold"></span> Upload Names
+                </button>
+                <p id="status" style="text-align: center; font-size: 0.8rem; margin-top: 10px; min-height: 20px;"></p>
+                <hr style="margin: 20px 0; border: 0; border-top: 1px dashed #ccc;">
+                <button style="background: #333;" onclick="resetPool()">
+                    <span class="iconify" data-icon="solar:danger-triangle-bold"></span> Delete All Names
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+        import { getFirestore, collection, writeBatch, doc, getDocs, deleteDoc, onSnapshot, query, orderBy } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+
+        // *** CREDENTIALS ***
+        const firebaseConfig = {
+            apiKey: "AIzaSyAaNAfsW4mMcamcB0RUQnD9Pf4hxALybo8",
+            authDomain: "christmasbunutan.firebaseapp.com",
+            projectId: "christmasbunutan",
+            storageBucket: "christmasbunutan.firebasestorage.app",
+            messagingSenderId: "755514278900",
+            appId: "1:755514278900:web:e1b83023fa242caf3aefa1",
+            measurementId: "G-LL6T5BDFRX"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+
+        window.checkPass = function() {
+            if(document.getElementById('adminPass').value === "pasko2025") { 
+                document.getElementById('login-panel').style.display = 'none';
+                document.getElementById('admin-panel').style.display = 'block';
+                startListeners();
+            } else { alert("Wrong password!"); }
+        }
+
+        function startListeners() {
+            onSnapshot(query(collection(db, "registrations"), orderBy("timestamp", "desc")), (snapshot) => {
+                let html = "";
+                let totalUsers = 0;
+                snapshot.forEach(doc => {
+                    const data = doc.data();
+                    const participants = data.participants || [];
+                    const nameDisplay = data.mode === 'solo' ? participants[0] : `Group: ${participants[0]}`;
+                    
+                    html += `<div class="list-item">
+                            <div><span style="font-weight:600; color:var(--c-teal)">${nameDisplay.toUpperCase()}</span>
+                            <div style="font-size:0.7rem; color:#888;">${new Date(data.timestamp.toDate()).toLocaleTimeString()}</div></div>
+                            <span class="status-badge status-done">JOINED</span></div>`;
+                    totalUsers += participants.length;
+                });
+                document.getElementById('participants-list').innerHTML = html || "<div style='text-align:center; padding:10px;'>No one yet.</div>";
+                document.getElementById('count-users').innerText = totalUsers;
+            });
+
+            onSnapshot(collection(db, "participants"), (snapshot) => {
+                let html = "";
+                let totalPool = 0;
+                let takenCount = 0;
+                snapshot.forEach(doc => {
+                    const data = doc.data();
+                    totalPool++;
+                    if(data.isTaken) takenCount++;
+                    html += `<div class="list-item" style="padding: 5px;"><span style="font-size: 0.8rem;">${data.name}</span>
+                            ${data.isTaken ? '<span class="iconify" data-icon="solar:check-circle-bold" style="color:var(--c-red)"></span>' : '<span class="iconify" data-icon="solar:clock-circle-linear" style="color:#ccc"></span>'}</div>`;
+                });
+                document.getElementById('pool-list').innerHTML = html || "<div style='text-align:center; padding:10px;'>Pool empty.</div>";
+                document.getElementById('count-pool').innerText = totalPool;
+                document.getElementById('count-done').innerText = takenCount;
+            });
+        }
+
+        window.uploadNames = async function() {
+            const btn = document.getElementById('uploadBtn');
+            const textarea = document.getElementById('namesList');
+            const status = document.getElementById('status');
+            status.innerHTML = "Uploading..."; btn.disabled = true;
+            
+            const cleanNames = textarea.value.split('\n').map(n => n.trim()).filter(n => n.length > 0);
+            if (cleanNames.length === 0) { status.innerHTML = "Empty!"; btn.disabled = false; return; }
+
+            const batch = writeBatch(db);
+            cleanNames.forEach(name => {
+                batch.set(doc(collection(db, "participants")), { name: name, isTaken: false, createdAt: new Date() });
+            });
+
+            try { await batch.commit(); status.innerHTML = `Added ${cleanNames.length} names!`; textarea.value = ""; } 
+            catch (e) { console.error(e); status.innerHTML = "Error."; }
+            btn.disabled = false;
+        }
+
+        window.resetPool = async function() {
+            if(confirm("Delete ALL names?")) {
+                const q = await getDocs(collection(db, "participants"));
+                q.forEach(async (d) => { await deleteDoc(doc(db, "participants", d.id)); });
+            }
+        }
+        window.resetRegistrations = async function() {
+            if(confirm("Clear participants?")) {
+                const r = await getDocs(collection(db, "registrations"));
+                r.forEach(async (d) => { await deleteDoc(doc(db, "registrations", d.id)); });
+            }
+        }
+    </script>
+</body>
+</html>

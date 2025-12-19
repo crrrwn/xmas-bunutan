@@ -1,0 +1,325 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Christmas Bunutan 2025</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;800&display=swap" rel="stylesheet">
+    <script src="https://code.iconify.design/3/3.1.0/iconify.min.js"></script>
+    
+    <style>
+        :root {
+            --c-red: #FF3F33;
+            --c-pink: #FFE6E1;
+            --c-teal: #075B5E;
+            --c-green: #9FC87E;
+        }
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            background-color: var(--c-teal);
+            color: var(--c-teal);
+            margin: 0;
+            /* Use dvh for modern mobile browsers (avoids jumpy address bar) */
+            min-height: 100vh;
+            min-height: 100dvh; 
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            overflow: hidden; /* Prevent body scroll */
+            background-image: linear-gradient(180deg, var(--c-teal) 0%, #043e40 100%);
+        }
+
+        .snow-bg {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            pointer-events: none; z-index: 0;
+            background-image: url('data:image/svg+xml;base64,PHN2ZyB2ZXJzaW9uPSIxLjEiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyIgd2lkdGg9IjIwIiBoZWlnaHQ9IjIwIj48Y2lyY2xlIGN4PSIxMCIgY3k9IjEwIiByPSIxLjUiIGZpbGw9InJnYmEoMjU1LDI1NSwyNTUsMC4zKSIvPjwvc3ZnPg==');
+            animation: snow 20s linear infinite;
+        }
+        @keyframes snow { from {background-position: 0 0;} to {background-position: 0 500px;}}
+
+        .app-container { 
+            width: 90%; 
+            max-width: 450px; /* Limits width on desktop */
+            text-align: center; 
+            z-index: 10;
+            position: relative;
+        }
+
+        .glass-card {
+            background: var(--c-pink);
+            border: 4px solid var(--c-green);
+            border-radius: 24px;
+            padding: 2rem 1.5rem;
+            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.4);
+            animation: popUp 0.5s ease;
+            max-height: 90vh; /* Prevent card from being taller than screen */
+            overflow-y: auto; /* Allow scroll only inside card if needed */
+        }
+        
+        /* Hide scrollbar in card */
+        .glass-card::-webkit-scrollbar { display: none; }
+
+        @keyframes popUp { from { opacity: 0; transform: scale(0.9); } to { opacity: 1; transform: scale(1); } }
+
+        h1 { 
+            font-weight: 800; color: var(--c-red); text-transform: uppercase; 
+            line-height: 1; margin: 0 0 5px 0; font-size: 2rem;
+        }
+
+        .mode-selector { 
+            display: flex; gap: 10px; background: rgba(255,255,255,0.5); 
+            padding: 5px; border-radius: 15px; margin-bottom: 20px; 
+        }
+        .mode-btn { 
+            flex: 1; padding: 10px; border-radius: 12px; border: none; 
+            background: transparent; color: var(--c-teal); font-weight: 600; 
+            cursor: pointer; transition: 0.3s; font-family: inherit; font-size: 0.9rem;
+        }
+        .mode-btn.active { background: var(--c-teal); color: var(--c-pink); box-shadow: 0 4px 10px rgba(7, 91, 94, 0.2); }
+
+        .input-group { margin-bottom: 12px; text-align: left; }
+        label { display: block; margin-bottom: 5px; font-weight: 600; font-size: 0.8rem; }
+        input {
+            width: 100%; padding: 12px; border-radius: 12px; border: 2px solid var(--c-green);
+            background: #fff; color: var(--c-teal); font-size: 1rem; font-weight: 600;
+            box-sizing: border-box; outline: none; transition: 0.3s;
+        }
+        input:focus { border-color: var(--c-red); }
+
+        .btn-main {
+            width: 100%; padding: 15px; border-radius: 15px; border: none; font-size: 1rem;
+            font-weight: 700; text-transform: uppercase; cursor: pointer;
+            background: var(--c-red); color: #fff; box-shadow: 0 6px 0 #c22f25;
+            transition: transform 0.1s, box-shadow 0.1s; margin-top: 10px;
+            display: flex; justify-content: center; align-items: center; gap: 10px;
+        }
+        .btn-main:active { transform: translateY(4px); box-shadow: 0 3px 0 #c22f25; }
+        .btn-main:disabled { background: #ccc; box-shadow: none; cursor: not-allowed; }
+
+        /* Responsive Tap Area */
+        .tap-area {
+            height: 280px; /* Default height */
+            margin: 20px 0; display: flex; flex-direction: column; align-items: center; 
+            justify-content: center; background: #fff; border: 4px dashed var(--c-red);
+            border-radius: 20px; cursor: pointer; position: relative;
+        }
+        .tap-text { font-size: 2rem; font-weight: 800; color: var(--c-red); line-height: 1; }
+        .tap-sub { font-size: 1.2rem; margin-top: 10px; font-weight: 600; }
+
+        /* Mobile specific adjustments */
+        @media (max-height: 700px) {
+            .tap-area { height: 200px; margin: 10px 0; }
+            .tap-text { font-size: 1.5rem; }
+            h1 { font-size: 1.5rem; }
+            .glass-card { padding: 1.5rem 1rem; }
+        }
+
+        .loading-spinner { 
+            border: 5px solid var(--c-pink); border-top: 5px solid var(--c-red); 
+            border-radius: 50%; width: 40px; height: 40px; animation: spin 1s linear infinite; margin: 20px auto; display: none;
+        }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+
+        .winner-reveal { 
+            font-size: clamp(2rem, 5vw, 2.8rem); /* Responsive font size */
+            font-weight: 800; margin: 20px 0; word-wrap: break-word; line-height: 1.1;
+            padding: 20px; background: rgba(255,255,255,0.5); border-radius: 15px;
+        }
+
+        #draw-screen, #result-screen { display: none; }
+        #member-inputs { max-height: 150px; overflow-y: auto; margin-bottom: 15px; padding-right: 5px; }
+        .member-row { display: flex; align-items: center; gap: 5px; margin-bottom: 8px; }
+        .member-num { font-size: 0.8rem; font-weight: bold; color: var(--c-red); width: 20px; }
+    </style>
+</head>
+<body>
+    <div class="snow-bg"></div>
+    <div class="app-container">
+
+        <div id="reg-screen" class="glass-card">
+            <h1><span class="iconify" data-icon="solar:gift-bold"></span> Bunutan</h1>
+            <p style="font-size: 0.9rem; margin:0 0 20px 0; opacity: 0.8;">Christmas Party 2025</p>
+            
+            <div class="mode-selector">
+                <button class="mode-btn active" id="btn-solo" onclick="setMode('solo')"><span class="iconify" data-icon="solar:user-bold"></span> Solo</button>
+                <button class="mode-btn" id="btn-group" onclick="setMode('group')"><span class="iconify" data-icon="solar:users-group-rounded-bold"></span> Family</button>
+            </div>
+
+            <div id="form-solo">
+                <div class="input-group">
+                    <label>Your Name / Alias</label>
+                    <input type="text" id="soloName" placeholder="e.g. Cerra">
+                </div>
+            </div>
+
+            <div id="form-group" style="display: none;">
+                <div class="input-group">
+                    <label>How many members?</label>
+                    <input type="number" id="groupCount" placeholder="0" min="2" max="15" oninput="generateMemberInputs()">
+                </div>
+                <div id="member-inputs"></div>
+            </div>
+
+            <button class="btn-main" onclick="startGame()">Start Now <span class="iconify" data-icon="solar:arrow-right-bold"></span></button>
+        </div>
+
+        <div id="draw-screen" class="glass-card">
+            <h2 id="turn-indicator" style="font-size: 1rem; opacity: 0.7; margin:0;">IT'S YOUR TURN!</h2>
+            <div class="tap-area" id="tapButton" onclick="drawName()">
+                <div class="tap-text" id="tapText">TAP TO<br>PICK</div>
+                <div class="tap-sub" id="tapPlayerName">PLAYER</div>
+                <span class="iconify" data-icon="solar:hand-shake-bold" style="font-size: 4rem; color: var(--c-green); opacity: 0.2; position: absolute; bottom: -10px; right: -10px;"></span>
+            </div>
+            <div class="loading-spinner" id="spinner"></div>
+            <p style="font-size: 0.8rem; font-weight: 600;">Member <span id="queue-count" style="color:var(--c-red)">1</span> of <span id="queue-total">1</span></p>
+        </div>
+
+        <div id="result-screen" class="glass-card">
+            <h3 style="font-size: 1rem; margin:0;">
+                <span class="iconify" data-icon="solar:confetti-bold" style="color:var(--c-red)"></span> 
+                NABUNOT NI <span id="picker-display" style="color:var(--c-red); font-weight:800;">...</span>:
+            </h3>
+            <div class="winner-reveal" id="winner-name">???</div>
+            <button class="btn-main" id="next-btn" onclick="nextInQueue()">Next Member <span class="iconify" data-icon="solar:arrow-right-bold"></span></button>
+        </div>
+
+    </div>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+        import { getFirestore, collection, addDoc, getDocs, query, where, doc, runTransaction, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyAaNAfsW4mMcamcB0RUQnD9Pf4hxALybo8",
+            authDomain: "christmasbunutan.firebaseapp.com",
+            projectId: "christmasbunutan",
+            storageBucket: "christmasbunutan.firebasestorage.app",
+            messagingSenderId: "755514278900",
+            appId: "1:755514278900:web:e1b83023fa242caf3aefa1",
+            measurementId: "G-LL6T5BDFRX"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+
+        let currentMode = 'solo';
+        let playerQueue = []; 
+        let currentQueueIndex = 0;
+
+        window.setMode = function(mode) {
+            currentMode = mode;
+            document.getElementById('btn-solo').className = mode === 'solo' ? 'mode-btn active' : 'mode-btn';
+            document.getElementById('btn-group').className = mode === 'group' ? 'mode-btn active' : 'mode-btn';
+            document.getElementById('form-solo').style.display = mode === 'solo' ? 'block' : 'none';
+            document.getElementById('form-group').style.display = mode === 'group' ? 'block' : 'none';
+        }
+
+        window.generateMemberInputs = function() {
+            const count = parseInt(document.getElementById('groupCount').value) || 0;
+            const container = document.getElementById('member-inputs');
+            container.innerHTML = ""; 
+            if(count > 15) return; 
+            for(let i = 1; i <= count; i++) {
+                container.innerHTML += `<div class="member-row"><span class="member-num">#${i}</span><input type="text" class="member-name-input" placeholder="Name"></div>`;
+            }
+        }
+
+        window.startGame = async function() {
+            playerQueue = [];
+            currentQueueIndex = 0;
+            if(currentMode === 'solo') {
+                const name = document.getElementById('soloName').value.trim();
+                if(!name) { alert("Name is required!"); return; }
+                playerQueue.push(name);
+            } else {
+                document.querySelectorAll('.member-name-input').forEach(input => {
+                    if(input.value.trim() !== "") playerQueue.push(input.value.trim());
+                });
+                if(playerQueue.length === 0) { alert("Add at least one member."); return; }
+            }
+
+            const btn = document.querySelector('#reg-screen .btn-main');
+            const originalText = btn.innerHTML;
+            btn.innerHTML = `<span class="iconify" data-icon="eos-icons:loading"></span> Connecting...`; btn.disabled = true;
+
+            try {
+                await addDoc(collection(db, "registrations"), {
+                    mode: currentMode, participants: playerQueue, timestamp: serverTimestamp(), status: 'started'
+                });
+                setupDrawScreen();
+                document.getElementById('reg-screen').style.display = 'none';
+                document.getElementById('draw-screen').style.display = 'block';
+            } catch(e) {
+                alert("Connection Error."); console.error(e);
+                btn.innerHTML = originalText; btn.disabled = false;
+            }
+        }
+
+        function setupDrawScreen() {
+            const currentPlayer = playerQueue[currentQueueIndex];
+            document.getElementById('tapPlayerName').innerText = currentPlayer.toUpperCase();
+            document.getElementById('queue-count').innerText = currentQueueIndex + 1;
+            document.getElementById('queue-total').innerText = playerQueue.length;
+            const tapBtn = document.getElementById('tapButton');
+            tapBtn.style.pointerEvents = 'auto'; tapBtn.style.opacity = '1';
+            document.getElementById('tapText').style.display = 'block';
+            document.getElementById('spinner').style.display = 'none';
+            document.getElementById('tapText').innerHTML = "TAP TO<br>PICK";
+        }
+
+        window.drawName = async function() {
+            const tapBtn = document.getElementById('tapButton');
+            if (tapBtn.style.pointerEvents === 'none') return;
+            document.getElementById('tapText').style.display = 'none';
+            document.getElementById('spinner').style.display = 'block';
+            tapBtn.style.pointerEvents = 'none';
+
+            try {
+                 const pickedName = await runTransaction(db, async (transaction) => {
+                    const q = query(collection(db, "participants"), where("isTaken", "==", false));
+                    const querySnapshot = await getDocs(q);
+                    if (querySnapshot.empty) { throw "NO_MORE_NAMES"; }
+                    const chosenDoc = querySnapshot.docs[Math.floor(Math.random() * querySnapshot.docs.length)];
+                    transaction.update(chosenDoc.ref, { isTaken: true });
+                    return chosenDoc.data().name; 
+                });
+                showResult(playerQueue[currentQueueIndex], pickedName);
+            } catch (error) {
+                document.getElementById('spinner').style.display = 'none';
+                document.getElementById('tapText').style.display = 'block';
+                if (error === "NO_MORE_NAMES") {
+                    document.getElementById('tapText').innerText = "EMPTY POOL!";
+                    tapBtn.style.opacity = "0.5";
+                } else {
+                    document.getElementById('tapText').innerText = "ERROR.\nTRY AGAIN.";
+                    tapBtn.style.pointerEvents = 'auto';
+                }
+            }
+        }
+
+        function showResult(picker, picked) {
+            setTimeout(() => {
+                document.getElementById('draw-screen').style.display = 'none';
+                document.getElementById('result-screen').style.display = 'block';
+                document.getElementById('picker-display').innerText = picker.toUpperCase();
+                document.getElementById('winner-name').innerText = picked;
+                
+                const nextBtn = document.getElementById('next-btn');
+                if (currentQueueIndex >= playerQueue.length - 1) {
+                    nextBtn.innerHTML = `Finish / New Group <span class="iconify" data-icon="solar:restart-bold"></span>`;
+                    nextBtn.onclick = () => location.reload();
+                } else {
+                    nextBtn.innerHTML = `Next: ${playerQueue[currentQueueIndex + 1].toUpperCase()} <span class="iconify" data-icon="solar:arrow-right-bold"></span>`;
+                    nextBtn.onclick = () => {
+                        currentQueueIndex++;
+                        document.getElementById('result-screen').style.display = 'none';
+                        document.getElementById('draw-screen').style.display = 'block';
+                        setupDrawScreen();
+                    };
+                }
+            }, 1000);
+        }
+    </script>
+</body>
+</html>
