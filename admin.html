@@ -26,81 +26,131 @@
             box-sizing: border-box;
         }
 
-        /* Responsive Login */
-        .login-container {
-            width: 90%;
-            max-width: 400px;
-            margin: 10vh auto;
-            background: var(--c-pink);
+        /* --- MODAL STYLES --- */
+        .modal-overlay {
+            display: none; /* Hidden by default */
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.6);
+            backdrop-filter: blur(5px);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+            animation: fadeIn 0.3s ease;
+        }
+
+        .modal-content {
+            background: white;
             padding: 30px;
             border-radius: 20px;
             text-align: center;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+            width: 90%;
+            max-width: 350px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.4);
+            animation: slideUp 0.3s ease;
+            border: 4px solid var(--c-pink);
         }
+
+        .modal-actions {
+            display: flex;
+            gap: 15px;
+            margin-top: 25px;
+            justify-content: center;
+        }
+
+        .btn-modal-cancel { background: #eee !important; color: #555 !important; }
+        .btn-modal-confirm { background: var(--c-red) !important; color: white !important; box-shadow: 0 5px 15px rgba(255, 63, 51, 0.3); }
+        .btn-modal-ok { background: var(--c-teal) !important; color: white !important; width: 100%; }
+
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+        @keyframes slideUp { from { transform: translateY(20px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+
+        /* --- LOGIN SCREEN STYLES --- */
+        .login-container {
+            width: 90%;
+            max-width: 400px;
+            margin: 20vh auto;
+            background: var(--c-pink);
+            padding: 40px 30px;
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+        }
+
+        /* Group Icon and Text tightly */
+        .login-header {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 10px; /* Space between Icon and Text */
+            margin-bottom: 25px;
+        }
+
+        .login-header h2 {
+            margin: 0;
+            color: var(--c-teal);
+            font-size: 1.8rem;
+            line-height: 1;
+        }
+
+        /* Password Wrapper */
+        .password-wrapper {
+            position: relative;
+            width: 100%;
+            margin-bottom: 15px;
+        }
+
+        .password-toggle {
+            position: absolute;
+            right: 15px;
+            top: 50%;
+            transform: translateY(-50%);
+            cursor: pointer;
+            color: var(--c-teal);
+            font-size: 1.4rem;
+            opacity: 0.6;
+            transition: 0.2s;
+        }
+        .password-toggle:hover { opacity: 1; }
+
+        /* General Inputs */
+        input {
+            width: 100%; padding: 15px; border: 2px solid #ddd; border-radius: 10px;
+            font-family: inherit; box-sizing: border-box; font-size: 1rem;
+        }
+        /* Padding for password to avoid hitting eye icon */
+        input[type="password"], input#adminPass { padding-right: 45px; } 
 
         .dashboard-container {
-            max-width: 1200px;
-            margin: 0 auto;
-            display: none;
-            width: 100%;
+            max-width: 1200px; margin: 0 auto; display: none; width: 100%;
         }
 
-        /* Responsive Header */
         header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 25px;
-            color: var(--c-pink);
-            flex-wrap: wrap;
-            gap: 15px;
-            background: rgba(0,0,0,0.2);
-            padding: 15px;
-            border-radius: 15px;
+            display: flex; justify-content: space-between; align-items: center;
+            margin-bottom: 25px; color: var(--c-pink); flex-wrap: wrap; gap: 15px;
+            background: rgba(0,0,0,0.2); padding: 15px; border-radius: 15px;
         }
 
-        .header-left {
-            display: flex;
-            align-items: center;
-            gap: 15px;
-        }
-
-        /* Admin Logo Style if you use one, otherwise text */
-        .admin-logo { height: 50px; width: auto; border-radius: 50%; border: 2px solid var(--c-red); }
-
+        .header-left { display: flex; align-items: center; gap: 15px; }
         header h1 { margin: 0; font-size: clamp(1.2rem, 4vw, 1.8rem); }
-        
-        .header-actions {
-            display: flex;
-            gap: 10px;
-        }
+        .header-actions { display: flex; gap: 10px; }
 
-        /* Stats Grid - Auto fit */
         .stat-cards {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-            gap: 15px;
-            margin-bottom: 30px;
+            display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 15px; margin-bottom: 30px;
         }
 
         .card {
-            background: var(--glass);
-            padding: 20px;
-            border-radius: 15px;
-            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
-            border-bottom: 5px solid var(--c-red);
+            background: var(--glass); padding: 20px; border-radius: 15px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1); border-bottom: 5px solid var(--c-red);
         }
         .card h3 { margin: 0; font-size: 0.85rem; color: #666; text-transform: uppercase; letter-spacing: 0.5px; }
         .card .number { font-size: 2.5rem; font-weight: 700; color: var(--c-teal); }
 
-        /* Main Content Grid */
-        .main-grid {
-            display: grid;
-            grid-template-columns: 2fr 1.5fr; /* Mas malaki space ng listahan sa desktop */
-            gap: 20px;
-        }
+        .main-grid { display: grid; grid-template-columns: 2fr 1.5fr; gap: 20px; }
 
-        /* MOBILE ADJUSTMENTS */
         @media (max-width: 768px) {
             body { padding: 15px; }
             .main-grid { grid-template-columns: 1fr; } 
@@ -110,53 +160,20 @@
             .stat-cards { grid-template-columns: 1fr; } 
         }
 
-        .panel {
-            background: var(--glass);
-            padding: 25px;
-            border-radius: 15px;
-            height: fit-content;
-        }
-
+        .panel { background: var(--glass); padding: 25px; border-radius: 15px; height: fit-content; }
         h2 { color: var(--c-teal); display: flex; align-items: center; gap: 10px; font-size: 1.1rem; margin-top: 0; }
 
-        /* Scrollable Lists */
-        .list-container {
-            max-height: 500px;
-            overflow-y: auto;
-            margin-top: 15px;
-            padding-right: 5px;
-        }
-        
-        /* Custom Scrollbar */
+        .list-container { max-height: 500px; overflow-y: auto; margin-top: 15px; padding-right: 5px; }
         .list-container::-webkit-scrollbar { width: 6px; }
         .list-container::-webkit-scrollbar-thumb { background-color: #ccc; border-radius: 10px; }
 
-        .list-item {
-            display: flex;
-            justify-content: space-between;
-            align-items: flex-start; 
-            padding: 12px;
-            border-bottom: 1px solid #eee;
-            font-size: 0.9rem;
-        }
+        .list-item { display: flex; justify-content: space-between; align-items: flex-start; padding: 12px; border-bottom: 1px solid #eee; font-size: 0.9rem; }
         .list-item:last-child { border-bottom: none; }
 
-        .status-badge {
-            padding: 4px 10px;
-            border-radius: 20px;
-            font-size: 0.7rem;
-            font-weight: 600;
-            white-space: nowrap;
-            margin-top: 5px; 
-        }
+        .status-badge { padding: 4px 10px; border-radius: 20px; font-size: 0.7rem; font-weight: 600; white-space: nowrap; margin-top: 5px; }
         .status-done { background: var(--c-green); color: var(--c-teal); }
         
-        /* Inputs */
-        textarea, input {
-            width: 100%; padding: 12px; border: 2px solid #ddd; border-radius: 10px;
-            font-family: inherit; box-sizing: border-box; margin-bottom: 10px;
-        }
-        textarea { height: 120px; resize: vertical; }
+        textarea { width: 100%; padding: 12px; border: 2px solid #ddd; border-radius: 10px; font-family: inherit; box-sizing: border-box; margin-bottom: 10px; height: 120px; resize: vertical; }
 
         button {
             background: var(--c-red); color: white; border: none; padding: 12px;
@@ -167,7 +184,6 @@
         button:hover { opacity: 0.9; transform: translateY(-2px); }
         .btn-outline { background: transparent; border: 2px solid var(--c-red); color: var(--c-red); }
         
-        /* Specific Button Colors */
         .btn-refresh { background: var(--c-pink); color: var(--c-teal); }
         .btn-logout { background: #333; color: white; }
     </style>
@@ -175,9 +191,16 @@
 <body>
 
     <div class="login-container" id="login-panel">
-        <span class="iconify" data-icon="solar:lock-password-bold-duotone" style="font-size: 3rem; color: var(--c-teal);"></span>
-        <h2 style="color: var(--c-teal);">Admin Login</h2>
-        <input type="password" id="adminPass" placeholder="Enter Password">
+        <div class="login-header">
+            <span class="iconify" data-icon="solar:lock-password-bold-duotone" style="font-size: 4rem; color: var(--c-teal);"></span>
+            <h2>Admin Login</h2>
+        </div>
+        
+        <div class="password-wrapper">
+            <input type="password" id="adminPass" placeholder="Enter Password">
+            <span class="iconify password-toggle" id="pass-icon" data-icon="solar:eye-closed-bold" onclick="togglePassword()"></span>
+        </div>
+
         <button onclick="checkPass()">Unlock Dashboard</button>
     </div>
 
@@ -194,7 +217,7 @@
                 <button onclick="location.reload()" class="btn-refresh" style="width: auto;">
                     <span class="iconify" data-icon="mingcute:refresh-2-line"></span> Refresh Data
                 </button>
-                <button onclick="logout()" class="btn-logout" style="width: auto;">
+                <button onclick="openLogoutModal()" class="btn-logout" style="width: auto;">
                     <span class="iconify" data-icon="solar:logout-2-bold"></span> Logout
                 </button>
             </div>
@@ -246,6 +269,31 @@
         </div>
     </div>
 
+    <div id="logoutModal" class="modal-overlay">
+        <div class="modal-content">
+            <span class="iconify" data-icon="solar:logout-2-bold-duotone" style="font-size: 3.5rem; color: var(--c-red); margin-bottom: 10px;"></span>
+            <h3 style="margin: 0; color: #333; font-size: 1.5rem;">Log Out?</h3>
+            <p style="color: #666; font-size: 0.9rem; margin-top: 5px;">Are you sure you want to end your admin session?</p>
+            
+            <div class="modal-actions">
+                <button class="btn-modal-cancel" onclick="closeLogoutModal()">Cancel</button>
+                <button class="btn-modal-confirm" onclick="confirmLogout()">Yes, Logout</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="errorModal" class="modal-overlay">
+        <div class="modal-content" style="border-color: var(--c-red);">
+            <span class="iconify" data-icon="solar:forbidden-circle-bold-duotone" style="font-size: 3.5rem; color: var(--c-red); margin-bottom: 10px;"></span>
+            <h3 style="margin: 0; color: #333; font-size: 1.5rem;">Access Denied</h3>
+            <p style="color: #666; font-size: 0.9rem; margin-top: 5px;">Wrong password. Please try again.</p>
+            
+            <div class="modal-actions">
+                <button class="btn-modal-ok" onclick="closeErrorModal()">Try Again</button>
+            </div>
+        </div>
+    </div>
+
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
         import { getFirestore, collection, writeBatch, doc, getDocs, deleteDoc, onSnapshot, query, orderBy } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
@@ -266,7 +314,6 @@
 
         // --- AUTHENTICATION & SESSION HANDLING ---
         
-        // Check session on load
         window.addEventListener('load', () => {
             const isLoggedIn = localStorage.getItem('adminLoggedIn');
             if (isLoggedIn === 'true') {
@@ -274,21 +321,48 @@
             }
         });
 
+        // Toggle Password Show/Hide
+        window.togglePassword = function() {
+            const input = document.getElementById('adminPass');
+            const icon = document.getElementById('pass-icon');
+            if(input.type === "password") {
+                input.type = "text";
+                icon.setAttribute("data-icon", "solar:eye-bold"); // Change to open eye
+            } else {
+                input.type = "password";
+                icon.setAttribute("data-icon", "solar:eye-closed-bold"); // Change to closed eye
+            }
+        }
+
         window.checkPass = function() {
             const pass = document.getElementById('adminPass').value;
             if(pass === "pasko2025") { 
                 localStorage.setItem('adminLoggedIn', 'true'); // Save session
                 showDashboard();
             } else { 
-                alert("Wrong password!"); 
+                // Show Error Modal instead of alert
+                document.getElementById('errorModal').style.display = 'flex';
             }
         }
 
-        window.logout = function() {
-            if(confirm("Are you sure you want to logout?")) {
-                localStorage.removeItem('adminLoggedIn'); // Clear session
-                location.reload(); // Reload to show login screen
-            }
+        window.closeErrorModal = function() {
+            document.getElementById('errorModal').style.display = 'none';
+            document.getElementById('adminPass').value = ''; // Clear input
+            document.getElementById('adminPass').focus();
+        }
+
+        // --- MODAL FUNCTIONS ---
+        window.openLogoutModal = function() {
+            document.getElementById('logoutModal').style.display = 'flex';
+        }
+
+        window.closeLogoutModal = function() {
+            document.getElementById('logoutModal').style.display = 'none';
+        }
+
+        window.confirmLogout = function() {
+            localStorage.removeItem('adminLoggedIn'); // Clear session
+            location.reload(); // Reload to show login screen
         }
 
         function showDashboard() {
@@ -307,7 +381,6 @@
                     const data = doc.data();
                     const participants = data.participants || [];
                     
-                    // Group Logic Fix
                     let nameDisplay = "";
                     if (data.mode === 'solo') {
                         nameDisplay = participants[0];
