@@ -54,10 +54,27 @@
             color: var(--c-pink);
             flex-wrap: wrap;
             gap: 15px;
+            background: rgba(0,0,0,0.2);
+            padding: 15px;
+            border-radius: 15px;
         }
+
+        .header-left {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        /* Admin Logo Style if you use one, otherwise text */
+        .admin-logo { height: 50px; width: auto; border-radius: 50%; border: 2px solid var(--c-red); }
 
         header h1 { margin: 0; font-size: clamp(1.2rem, 4vw, 1.8rem); }
         
+        .header-actions {
+            display: flex;
+            gap: 10px;
+        }
+
         /* Stats Grid - Auto fit */
         .stat-cards {
             display: grid;
@@ -86,10 +103,11 @@
         /* MOBILE ADJUSTMENTS */
         @media (max-width: 768px) {
             body { padding: 15px; }
-            .main-grid { grid-template-columns: 1fr; } /* Stack columns vertically */
+            .main-grid { grid-template-columns: 1fr; } 
             header { flex-direction: column; align-items: flex-start; }
-            header button { width: 100%; }
-            .stat-cards { grid-template-columns: 1fr; } /* 1 card per row on small phones */
+            .header-actions { width: 100%; justify-content: space-between; }
+            .header-actions button { width: 48%; }
+            .stat-cards { grid-template-columns: 1fr; } 
         }
 
         .panel {
@@ -103,7 +121,7 @@
 
         /* Scrollable Lists */
         .list-container {
-            max-height: 500px; /* Taller on desktop */
+            max-height: 500px;
             overflow-y: auto;
             margin-top: 15px;
             padding-right: 5px;
@@ -116,7 +134,7 @@
         .list-item {
             display: flex;
             justify-content: space-between;
-            align-items: center;
+            align-items: flex-start; 
             padding: 12px;
             border-bottom: 1px solid #eee;
             font-size: 0.9rem;
@@ -129,6 +147,7 @@
             font-size: 0.7rem;
             font-weight: 600;
             white-space: nowrap;
+            margin-top: 5px; 
         }
         .status-done { background: var(--c-green); color: var(--c-teal); }
         
@@ -147,6 +166,10 @@
         }
         button:hover { opacity: 0.9; transform: translateY(-2px); }
         .btn-outline { background: transparent; border: 2px solid var(--c-red); color: var(--c-red); }
+        
+        /* Specific Button Colors */
+        .btn-refresh { background: var(--c-pink); color: var(--c-teal); }
+        .btn-logout { background: #333; color: white; }
     </style>
 </head>
 <body>
@@ -160,13 +183,21 @@
 
     <div class="dashboard-container" id="admin-panel">
         <header>
-            <div>
-                <h1>🎄 Admin Dashboard</h1>
-                <small style="opacity: 0.8;">Christmas Bunutan 2025</small>
+            <div class="header-left">
+                <div>
+                    <h1>🎄 Admin Dashboard</h1>
+                    <small style="opacity: 0.8;">Christmas Bunutan 2025</small>
+                </div>
             </div>
-            <button onclick="location.reload()" style="width: auto; background: var(--c-pink); color: var(--c-teal);">
-                <span class="iconify" data-icon="mingcute:refresh-2-line"></span> Refresh Data
-            </button>
+            
+            <div class="header-actions">
+                <button onclick="location.reload()" class="btn-refresh" style="width: auto;">
+                    <span class="iconify" data-icon="mingcute:refresh-2-line"></span> Refresh Data
+                </button>
+                <button onclick="logout()" class="btn-logout" style="width: auto;">
+                    <span class="iconify" data-icon="solar:logout-2-bold"></span> Logout
+                </button>
+            </div>
         </header>
 
         <div class="stat-cards">
@@ -233,13 +264,40 @@
         const app = initializeApp(firebaseConfig);
         const db = getFirestore(app);
 
+        // --- AUTHENTICATION & SESSION HANDLING ---
+        
+        // Check session on load
+        window.addEventListener('load', () => {
+            const isLoggedIn = localStorage.getItem('adminLoggedIn');
+            if (isLoggedIn === 'true') {
+                showDashboard();
+            }
+        });
+
         window.checkPass = function() {
-            if(document.getElementById('adminPass').value === "pasko2025") { 
-                document.getElementById('login-panel').style.display = 'none';
-                document.getElementById('admin-panel').style.display = 'block';
-                startListeners();
-            } else { alert("Wrong password!"); }
+            const pass = document.getElementById('adminPass').value;
+            if(pass === "pasko2025") { 
+                localStorage.setItem('adminLoggedIn', 'true'); // Save session
+                showDashboard();
+            } else { 
+                alert("Wrong password!"); 
+            }
         }
+
+        window.logout = function() {
+            if(confirm("Are you sure you want to logout?")) {
+                localStorage.removeItem('adminLoggedIn'); // Clear session
+                location.reload(); // Reload to show login screen
+            }
+        }
+
+        function showDashboard() {
+            document.getElementById('login-panel').style.display = 'none';
+            document.getElementById('admin-panel').style.display = 'block';
+            startListeners();
+        }
+
+        // --- REAL-TIME LISTENERS ---
 
         function startListeners() {
             onSnapshot(query(collection(db, "registrations"), orderBy("timestamp", "desc")), (snapshot) => {
@@ -248,12 +306,22 @@
                 snapshot.forEach(doc => {
                     const data = doc.data();
                     const participants = data.participants || [];
-                    const nameDisplay = data.mode === 'solo' ? participants[0] : `Group: ${participants[0]}`;
                     
+                    // Group Logic Fix
+                    let nameDisplay = "";
+                    if (data.mode === 'solo') {
+                        nameDisplay = participants[0];
+                    } else {
+                        nameDisplay = `Group (${participants.length}): ${participants.join(", ")}`;
+                    }
+
                     html += `<div class="list-item">
-                            <div><span style="font-weight:600; color:var(--c-teal)">${nameDisplay.toUpperCase()}</span>
-                            <div style="font-size:0.7rem; color:#888;">${new Date(data.timestamp.toDate()).toLocaleTimeString()}</div></div>
+                            <div style="flex: 1; padding-right: 10px;">
+                                <span style="font-weight:600; color:var(--c-teal); display:block; word-wrap: break-word;">${nameDisplay.toUpperCase()}</span>
+                                <div style="font-size:0.7rem; color:#888;">${new Date(data.timestamp.toDate()).toLocaleTimeString()}</div>
+                            </div>
                             <span class="status-badge status-done">JOINED</span></div>`;
+                    
                     totalUsers += participants.length;
                 });
                 document.getElementById('participants-list').innerHTML = html || "<div style='text-align:center; padding:10px;'>No one yet.</div>";
