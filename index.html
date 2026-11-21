@@ -25,11 +25,10 @@
             display: flex;
             justify-content: center;
             align-items: center;
-            overflow: hidden; /* Prevent body scroll */
+            overflow: hidden;
             background-image: linear-gradient(180deg, var(--c-teal) 0%, #043e40 100%);
         }
 
-        /* --- NEW DYNAMIC BACKGROUND --- */
         .falling-bg {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
             pointer-events: none; z-index: 0;
@@ -53,7 +52,6 @@
             90% { opacity: 0.8; }
             100% { transform: translateY(110vh) rotate(360deg); opacity: 0; }
         }
-        /* ------------------------------ */
 
         .app-container { 
             width: 90%; 
@@ -109,6 +107,7 @@
             background: var(--c-red); color: #fff; box-shadow: 0 6px 0 #c22f25;
             transition: transform 0.1s, box-shadow 0.1s; margin-top: 10px;
             display: flex; justify-content: center; align-items: center; gap: 10px;
+            font-family: 'Poppins', sans-serif;
         }
         .btn-main:active { transform: translateY(4px); box-shadow: 0 3px 0 #c22f25; }
         .btn-main:disabled { background: #ccc; box-shadow: none; cursor: not-allowed; }
@@ -145,6 +144,31 @@
         #member-inputs { max-height: 150px; overflow-y: auto; margin-bottom: 15px; padding-right: 5px; }
         .member-row { display: flex; align-items: center; gap: 5px; margin-bottom: 8px; }
         .member-num { font-size: 0.8rem; font-weight: bold; color: var(--c-red); width: 20px; }
+
+        /* --- MODAL STYLES --- */
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0, 0, 0, 0.65);
+            backdrop-filter: blur(5px);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+        }
+        .modal-box {
+            background: #fff;
+            border: 4px solid var(--c-green);
+            border-radius: 20px;
+            padding: 25px;
+            width: 85%;
+            max-width: 340px;
+            text-align: center;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.4);
+            animation: popUp 0.3s ease;
+        }
+        .modal-box h3 { margin: 10px 0 5px; color: var(--c-teal); font-size: 1.3rem; }
+        .modal-box p { margin: 0 0 20px; color: #555; font-size: 0.9rem; }
     </style>
 </head>
 <body>
@@ -202,9 +226,19 @@
 
     </div>
 
+    <!-- NOTIFICATION MODAL -->
+    <div id="userModal" class="modal-overlay">
+        <div class="modal-box">
+            <span id="userModalIcon" class="iconify" data-icon="solar:info-circle-bold-duotone" style="font-size: 3.5rem; color: var(--c-red);"></span>
+            <h3 id="userModalTitle">Notice</h3>
+            <p id="userModalBody">Message here.</p>
+            <button class="btn-main" id="userModalBtn" onclick="closeUserModal()">OK</button>
+        </div>
+    </div>
+
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-        import { getFirestore, collection, addDoc, getDocs, query, where, doc, runTransaction, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+        import { getFirestore, collection, addDoc, getDocs, query, where, doc, runTransaction, serverTimestamp, arrayUnion, onSnapshot } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
         // *** CREDENTIALS ***
         const firebaseConfig = {
@@ -220,32 +254,46 @@
         const app = initializeApp(firebaseConfig);
         const db = getFirestore(app);
 
-        // --- NEW: FALLING BACKGROUND LOGIC ---
+        // --- FALLING BACKGROUND LOGIC ---
         (function startFallingAnimation() {
             const container = document.getElementById('fallingContainer');
-            // Dito mo i-set ang mga emojis na gusto mo mahulog
             const emojis = ['❄️', '🎁', '🍬', '🍭', '🎄', '✨'];
-            const itemCount = 30; // Dami ng items
+            const itemCount = 30;
 
             for (let i = 0; i < itemCount; i++) {
                 const el = document.createElement('div');
                 el.classList.add('fall-item');
                 el.innerText = emojis[Math.floor(Math.random() * emojis.length)];
-                
-                // Random Settings
-                el.style.left = Math.random() * 100 + 'vw'; // Random horizontal position
-                el.style.animationDuration = (Math.random() * 5 + 5) + 's'; // Speed (5s to 10s)
-                el.style.animationDelay = (Math.random() * 5) + 's'; // Delay
-                el.style.fontSize = (Math.random() * 1.5 + 1) + 'rem'; // Random Size
-                
+                el.style.left = Math.random() * 100 + 'vw';
+                el.style.animationDuration = (Math.random() * 5 + 5) + 's';
+                el.style.animationDelay = (Math.random() * 5) + 's';
+                el.style.fontSize = (Math.random() * 1.5 + 1) + 'rem';
                 container.appendChild(el);
             }
         })();
-        // -------------------------------------
 
         let currentMode = 'solo';
         let playerQueue = []; 
         let currentQueueIndex = 0;
+        let sessionDocId = null;
+        let unsubscribeSession = null;
+
+        // --- MODAL HELPERS ---
+        function showUserModal(title, body, icon = 'solar:info-circle-bold-duotone', onOk = null) {
+            document.getElementById('userModalTitle').innerText = title;
+            document.getElementById('userModalBody').innerText = body;
+            document.getElementById('userModalIcon').setAttribute('data-icon', icon);
+            document.getElementById('userModal').style.display = 'flex';
+            const btn = document.getElementById('userModalBtn');
+            btn.onclick = () => {
+                closeUserModal();
+                if (onOk) onOk();
+            };
+        }
+
+        window.closeUserModal = function() {
+            document.getElementById('userModal').style.display = 'none';
+        }
 
         window.setMode = function(mode) {
             currentMode = mode;
@@ -265,18 +313,38 @@
             }
         }
 
+        // Listen if Admin resets this participant's draw
+        function watchAdminReset(docId) {
+            if (unsubscribeSession) unsubscribeSession();
+            let hasLoadedOnce = false;
+            unsubscribeSession = onSnapshot(doc(db, "registrations", docId), (snap) => {
+                if (snap.exists()) {
+                    hasLoadedOnce = true;
+                } else if (hasLoadedOnce) {
+                    // Admin deleted/reset this registration and returned the pick to the pool
+                    unsubscribeSession();
+                    showUserModal(
+                        "Draw Reset!",
+                        "Ni-reset ng Admin ang bunot mo at naibalik na sa Tambiyolo ang nabunot mo. Pwede ka nang bumunot ulit!",
+                        "solar:restart-bold-duotone",
+                        () => location.reload()
+                    );
+                }
+            });
+        }
+
         window.startGame = async function() {
             playerQueue = [];
             currentQueueIndex = 0;
             if(currentMode === 'solo') {
                 const name = document.getElementById('soloName').value.trim();
-                if(!name) { alert("Name is required!"); return; }
+                if(!name) { showUserModal("Missing Name", "Please enter your name first."); return; }
                 playerQueue.push(name);
             } else {
                 document.querySelectorAll('.member-name-input').forEach(input => {
                     if(input.value.trim() !== "") playerQueue.push(input.value.trim());
                 });
-                if(playerQueue.length === 0) { alert("Add at least one member."); return; }
+                if(playerQueue.length === 0) { showUserModal("Missing Members", "Please enter at least one member name."); return; }
             }
 
             const btn = document.querySelector('#reg-screen .btn-main');
@@ -284,14 +352,23 @@
             btn.innerHTML = `<span class="iconify" data-icon="eos-icons:loading"></span> Connecting...`; btn.disabled = true;
 
             try {
-                await addDoc(collection(db, "registrations"), {
-                    mode: currentMode, participants: playerQueue, timestamp: serverTimestamp(), status: 'started'
+                const docRef = await addDoc(collection(db, "registrations"), {
+                    mode: currentMode,
+                    participants: playerQueue,
+                    pickedPlayers: [],
+                    pickedDocIds: [],
+                    timestamp: serverTimestamp(),
+                    status: 'waiting'
                 });
+                sessionDocId = docRef.id;
+                watchAdminReset(sessionDocId);
+
                 setupDrawScreen();
                 document.getElementById('reg-screen').style.display = 'none';
                 document.getElementById('draw-screen').style.display = 'block';
             } catch(e) {
-                alert("Connection Error."); console.error(e);
+                showUserModal("Connection Error", "Please check your internet connection and try again.");
+                console.error(e);
                 btn.innerHTML = originalText; btn.disabled = false;
             }
         }
@@ -315,17 +392,54 @@
             document.getElementById('spinner').style.display = 'block';
             tapBtn.style.pointerEvents = 'none';
 
+            const currentPlayer = playerQueue[currentQueueIndex];
+
             try {
-                 const pickedName = await runTransaction(db, async (transaction) => {
+                const pickedName = await runTransaction(db, async (transaction) => {
                     const q = query(collection(db, "participants"), where("isTaken", "==", false));
                     const querySnapshot = await getDocs(q);
                     if (querySnapshot.empty) { throw "NO_MORE_NAMES"; }
-                    const chosenDoc = querySnapshot.docs[Math.floor(Math.random() * querySnapshot.docs.length)];
-                    transaction.update(chosenDoc.ref, { isTaken: true });
+
+                    // Smarter Anti-Self-Pick (avoids exact match or partial match like "Juan" vs "Juan Dela Cruz")
+                    const currentLower = currentPlayer.trim().toLowerCase();
+                    let eligibleDocs = querySnapshot.docs.filter(d => {
+                        const poolLower = d.data().name.trim().toLowerCase();
+                        if (poolLower === currentLower) return false;
+                        if (currentLower.length >= 2 && (poolLower.includes(currentLower) || currentLower.includes(poolLower))) {
+                            return false;
+                        }
+                        return true;
+                    });
+
+                    // Fallback if the only remaining name is their own
+                    if (eligibleDocs.length === 0) {
+                        eligibleDocs = querySnapshot.docs;
+                    }
+
+                    const chosenDoc = eligibleDocs[Math.floor(Math.random() * eligibleDocs.length)];
+
+                    // Mark as taken AND tag with sessionDocId so Admin reset always returns it to the Name Pool
+                    transaction.update(chosenDoc.ref, { 
+                        isTaken: true,
+                        pickedByRegId: sessionDocId
+                    });
+
+                    // Record that this player picked (stores only doc ID for Admin Reset; picked name stays hidden)
+                    if (sessionDocId) {
+                        const regRef = doc(db, "registrations", sessionDocId);
+                        const isLast = (currentQueueIndex >= playerQueue.length - 1);
+                        transaction.update(regRef, {
+                            pickedPlayers: arrayUnion(currentPlayer),
+                            pickedDocIds: arrayUnion(chosenDoc.id),
+                            status: isLast ? 'done' : 'picking'
+                        });
+                    }
+
                     return chosenDoc.data().name; 
                 });
-                showResult(playerQueue[currentQueueIndex], pickedName);
+                showResult(currentPlayer, pickedName);
             } catch (error) {
+                console.error(error);
                 document.getElementById('spinner').style.display = 'none';
                 document.getElementById('tapText').style.display = 'block';
                 if (error === "NO_MORE_NAMES") {
@@ -348,7 +462,10 @@
                 const nextBtn = document.getElementById('next-btn');
                 if (currentQueueIndex >= playerQueue.length - 1) {
                     nextBtn.innerHTML = `Finish / New Group <span class="iconify" data-icon="solar:restart-bold"></span>`;
-                    nextBtn.onclick = () => location.reload();
+                    nextBtn.onclick = () => {
+                        if (unsubscribeSession) unsubscribeSession();
+                        location.reload();
+                    };
                 } else {
                     nextBtn.innerHTML = `Next: ${playerQueue[currentQueueIndex + 1].toUpperCase()} <span class="iconify" data-icon="solar:arrow-right-bold"></span>`;
                     nextBtn.onclick = () => {
