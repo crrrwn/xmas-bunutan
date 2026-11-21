@@ -58,9 +58,9 @@
             display: flex;
             gap: 10px;
             justify-content: center;
+            margin-top: 15px;
         }
 
-        /* Buttons inside Modal */
         .modal-btn {
             padding: 10px 20px; border-radius: 10px; border: none; font-weight: 600; cursor: pointer; flex: 1;
         }
@@ -115,10 +115,30 @@
         .list-container { max-height: 500px; overflow-y: auto; margin-top: 15px; padding-right: 5px; }
         .list-container::-webkit-scrollbar { width: 6px; }
         .list-container::-webkit-scrollbar-thumb { background-color: #ccc; border-radius: 10px; }
-        .list-item { display: flex; justify-content: space-between; align-items: flex-start; padding: 12px; border-bottom: 1px solid #eee; font-size: 0.9rem; }
+        .list-item { display: flex; justify-content: space-between; align-items: center; gap: 10px; padding: 12px; border-bottom: 1px solid #eee; font-size: 0.9rem; }
         .list-item:last-child { border-bottom: none; }
-        .status-badge { padding: 4px 10px; border-radius: 20px; font-size: 0.7rem; font-weight: 600; white-space: nowrap; margin-top: 5px; }
+
+        /* Status Badges */
+        .status-badge { padding: 4px 10px; border-radius: 20px; font-size: 0.7rem; font-weight: 600; white-space: nowrap; }
         .status-done { background: var(--c-green); color: var(--c-teal); }
+        .status-picking { background: #FFF3CD; color: #856404; }
+        .status-waiting { background: #eee; color: #777; }
+
+        /* Small Action Icon Buttons */
+        .item-actions { display: flex; align-items: center; gap: 6px; flex-shrink: 0; }
+        .icon-btn {
+            width: auto !important;
+            padding: 6px 8px !important;
+            border-radius: 8px !important;
+            font-size: 0.85rem !important;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .btn-edit { background: var(--c-teal); color: white; }
+        .btn-reset-one { background: var(--c-pink); color: var(--c-red); border: 1px solid var(--c-red) !important; }
+        .btn-del-one { background: #eee; color: #666; }
+        .btn-del-one:hover { background: var(--c-red); color: white; }
         
         textarea { width: 100%; padding: 12px; border: 2px solid #ddd; border-radius: 10px; font-family: inherit; box-sizing: border-box; margin-bottom: 10px; height: 120px; resize: vertical; }
 
@@ -127,6 +147,14 @@
         .btn-outline { background: transparent; border: 2px solid var(--c-red); color: var(--c-red); }
         .btn-refresh { background: var(--c-pink); color: var(--c-teal); }
         .btn-logout { background: #333; color: white; }
+
+        /* Filter Tabs for Who Joined */
+        .filter-tabs { display: flex; gap: 8px; margin-bottom: 10px; }
+        .filter-tab {
+            width: auto; padding: 6px 12px; font-size: 0.75rem; border-radius: 20px;
+            background: #eee; color: #555; font-weight: 600;
+        }
+        .filter-tab.active { background: var(--c-teal); color: white; }
     </style>
 </head>
 <body>
@@ -148,7 +176,7 @@
             <div class="header-left">
                 <div>
                     <h1>🎄 Admin Dashboard</h1>
-                    <small style="opacity: 0.8;">Christmas Bunutan 2025</small>
+                    <small style="opacity: 0.8;">Christmas Bunutan</small>
                 </div>
             </div>
             <div class="header-actions">
@@ -179,18 +207,27 @@
         <div class="main-grid">
             <div class="panel">
                 <h2><span class="iconify" data-icon="solar:users-group-rounded-bold-duotone"></span> Who Joined?</h2>
-                <p style="font-size: 0.8rem; color: #666;">List of participants. <span style="color:var(--c-red)">Picks are hidden.</span></p>
+                <p style="font-size: 0.8rem; color: #666; margin-top: 0;">
+                    Track who already picked. <span style="color:var(--c-red)">Picks are hidden.</span>
+                </p>
+
+                <!-- Filter Buttons -->
+                <div class="filter-tabs">
+                    <button class="filter-tab active" id="tab-all" onclick="setFilter('all')">All Joined</button>
+                    <button class="filter-tab" id="tab-picked" onclick="setFilter('picked')">Picked Only</button>
+                </div>
+
                 <div class="list-container" id="participants-list">
                     <div style="text-align: center; padding: 20px; color: #999;">Loading...</div>
                 </div>
                 <button class="btn-outline" onclick="triggerResetRegistrations()" style="margin-top: 20px; font-size: 0.8rem;">
-                    <span class="iconify" data-icon="solar:trash-bin-trash-bold"></span> Reset Participants
+                    <span class="iconify" data-icon="solar:trash-bin-trash-bold"></span> Reset All Participants
                 </button>
             </div>
 
             <div class="panel">
                 <h2><span class="iconify" data-icon="solar:box-minimalistic-bold-duotone"></span> Name Pool</h2>
-                <div class="list-container" id="pool-list" style="max-height: 200px; background: #fff; padding: 10px; border-radius: 10px; border: 1px solid #eee; margin-bottom: 20px;">
+                <div class="list-container" id="pool-list" style="max-height: 250px; background: #fff; padding: 10px; border-radius: 10px; border: 1px solid #eee; margin-bottom: 20px;">
                 </div>
                 
                 <label style="font-size: 0.8rem; font-weight: bold;">Add Names (Enter key to separate):</label>
@@ -207,6 +244,7 @@
         </div>
     </div>
 
+    <!-- 1. MESSAGE MODAL -->
     <div id="messageModal" class="modal-overlay">
         <div class="modal-content">
             <span id="msgIcon" class="iconify" style="font-size: 3.5rem; margin-bottom: 10px;"></span>
@@ -218,6 +256,7 @@
         </div>
     </div>
 
+    <!-- 2. CONFIRM MODAL -->
     <div id="confirmModal" class="modal-overlay">
         <div class="modal-content">
             <span class="iconify" data-icon="solar:question-circle-bold-duotone" style="font-size: 3.5rem; color: var(--c-red); margin-bottom: 10px;"></span>
@@ -230,9 +269,23 @@
         </div>
     </div>
 
+    <!-- 3. EDIT NAME MODAL -->
+    <div id="editModal" class="modal-overlay">
+        <div class="modal-content">
+            <span class="iconify" data-icon="solar:pen-new-square-bold-duotone" style="font-size: 3.5rem; color: var(--c-teal); margin-bottom: 10px;"></span>
+            <h3 class="modal-title">Edit Name</h3>
+            <p class="modal-desc" style="margin-bottom: 12px;">Update the name in the Tambiyolo.</p>
+            <input type="text" id="editNameInput" placeholder="Enter new name">
+            <div class="modal-actions">
+                <button class="modal-btn btn-cancel" onclick="closeEditModal()">Cancel</button>
+                <button class="modal-btn btn-ok" style="flex:1;" onclick="saveEditedName()">Save</button>
+            </div>
+        </div>
+    </div>
+
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-        import { getFirestore, collection, writeBatch, doc, getDocs, deleteDoc, onSnapshot, query, orderBy } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+        import { getFirestore, collection, writeBatch, doc, getDocs, deleteDoc, updateDoc, onSnapshot, query, orderBy } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
         // *** CREDENTIALS ***
         const firebaseConfig = {
@@ -247,6 +300,12 @@
 
         const app = initializeApp(firebaseConfig);
         const db = getFirestore(app);
+
+        // Local caches for safe modal editing/resetting
+        let poolMap = {};
+        let regListCache = [];
+        let currentFilter = 'all';
+        let editingDocId = null;
 
         // --- AUTH & SESSION ---
         window.addEventListener('load', () => {
@@ -272,7 +331,6 @@
                 localStorage.setItem('adminLoggedIn', 'true');
                 showDashboard();
             } else { 
-                // Show Error Modal
                 showMessage("Access Denied", "Wrong password. Please try again.", "error");
             }
         }
@@ -290,13 +348,10 @@
             startListeners();
         }
 
-        // --- MODAL SYSTEM LOGIC ---
-        
-        // Message Modal (Alert replacement)
+        // --- MODAL SYSTEM ---
         window.showMessage = function(title, body, type = 'info') {
             const modal = document.getElementById('messageModal');
             const icon = document.getElementById('msgIcon');
-            
             document.getElementById('msgTitle').innerText = title;
             document.getElementById('msgBody').innerText = body;
 
@@ -314,20 +369,16 @@
             document.getElementById('messageModal').style.display = 'none';
         }
 
-        // Confirm Modal (Confirm replacement)
-        let confirmAction = null;
-
         window.showConfirm = function(title, body, callback) {
             const modal = document.getElementById('confirmModal');
             document.getElementById('confTitle').innerText = title;
             document.getElementById('confBody').innerText = body;
             modal.style.display = 'flex';
             
-            // Unbind previous click events to prevent stacking
             const btn = document.getElementById('btnConfirmAction');
             btn.onclick = function() {
-                callback();
                 closeConfirmModal();
+                callback();
             };
         }
 
@@ -335,21 +386,165 @@
             document.getElementById('confirmModal').style.display = 'none';
         }
 
-        // --- CORE FUNCTIONS (Updated to use Modals) ---
+        // --- EDIT NAME IN POOL ---
+        window.openEditModal = function(docId) {
+            editingDocId = docId;
+            document.getElementById('editNameInput').value = poolMap[docId] || "";
+            document.getElementById('editModal').style.display = 'flex';
+            document.getElementById('editNameInput').focus();
+        }
 
+        window.closeEditModal = function() {
+            document.getElementById('editModal').style.display = 'none';
+            editingDocId = null;
+        }
+
+        window.saveEditedName = async function() {
+            const newName = document.getElementById('editNameInput').value.trim();
+            if (!newName) {
+                showMessage("Invalid Name", "Name cannot be empty.", "error");
+                return;
+            }
+            try {
+                await updateDoc(doc(db, "participants", editingDocId), { name: newName });
+                closeEditModal();
+                showMessage("Updated!", `Name changed to "${newName}".`, "success");
+            } catch (e) {
+                console.error(e);
+                showMessage("Error", "Failed to update name.", "error");
+            }
+        }
+
+        window.deleteSinglePoolName = function(docId) {
+            const name = poolMap[docId] || "this name";
+            showConfirm("Delete Name?", `Remove "${name}" from the Tambiyolo?`, async () => {
+                try {
+                    await deleteDoc(doc(db, "participants", docId));
+                    showMessage("Deleted", `"${name}" has been removed.`, "success");
+                } catch (e) {
+                    console.error(e);
+                    showMessage("Error", "Failed to delete name.", "error");
+                }
+            });
+        }
+
+        // --- INDIVIDUAL RESET FOR WHO JOINED ---
+        window.resetSingleRegistration = function(regId) {
+            const reg = regListCache.find(r => r.id === regId);
+            if (!reg) return;
+
+            const participants = reg.participants || [];
+            const label = reg.mode === 'solo' ? participants[0] : `Group (${participants.join(", ")})`;
+
+            showConfirm(
+                "Reset Participant?",
+                `Reset "${label}"? Ibabalik sa Tambiyolo ang nabunot nila para makabunot sila ulit.`,
+                async () => {
+                    try {
+                        // 1. Return their picked name(s) back to the Tambiyolo (isTaken: false)
+                        const pickedDocIds = reg.pickedDocIds || [];
+                        for (const pDocId of pickedDocIds) {
+                            try {
+                                await updateDoc(doc(db, "participants", pDocId), { isTaken: false });
+                            } catch (err) {
+                                console.warn("Pool doc might already be deleted:", pDocId);
+                            }
+                        }
+
+                        // 2. Delete their registration record so they can join/pick again
+                        await deleteDoc(doc(db, "registrations", regId));
+                        showMessage("Reset Complete!", `"${label}" has been reset and their pick was returned to the Tambiyolo.`, "success");
+                    } catch (e) {
+                        console.error(e);
+                        showMessage("Error", "Failed to reset participant.", "error");
+                    }
+                }
+            );
+        }
+
+        // --- FILTER WHO JOINED ---
+        window.setFilter = function(filter) {
+            currentFilter = filter;
+            document.getElementById('tab-all').className = filter === 'all' ? 'filter-tab active' : 'filter-tab';
+            document.getElementById('tab-picked').className = filter === 'picked' ? 'filter-tab active' : 'filter-tab';
+            renderParticipantsList();
+        }
+
+        function renderParticipantsList() {
+            let html = "";
+            const filtered = regListCache.filter(item => {
+                if (currentFilter === 'picked') {
+                    return (item.pickedPlayers && item.pickedPlayers.length > 0);
+                }
+                return true;
+            });
+
+            filtered.forEach(item => {
+                const participants = item.participants || [];
+                const pickedPlayers = item.pickedPlayers || [];
+                const pickedCount = pickedPlayers.length;
+                const totalMembers = participants.length;
+
+                let nameDisplay = "";
+                if (item.mode === 'solo') {
+                    nameDisplay = participants[0] || "Unknown";
+                } else {
+                    // Show checkmarks for each member who already picked (still hiding WHO they picked)
+                    const memberTags = participants.map(m => {
+                        const hasPicked = pickedPlayers.includes(m);
+                        return hasPicked ? `${m} ✓` : `${m} (waiting)`;
+                    });
+                    nameDisplay = `Group (${totalMembers}): ${memberTags.join(", ")}`;
+                }
+
+                // Determine Badge
+                let badgeHtml = `<span class="status-badge status-waiting">WAITING</span>`;
+                if (pickedCount > 0 && pickedCount >= totalMembers) {
+                    badgeHtml = `<span class="status-badge status-done">PICKED ✓</span>`;
+                } else if (pickedCount > 0) {
+                    badgeHtml = `<span class="status-badge status-picking">PICKED (${pickedCount}/${totalMembers})</span>`;
+                }
+
+                const timeStr = item.timestamp ? new Date(item.timestamp.toDate()).toLocaleTimeString() : 'Just now';
+
+                html += `
+                    <div class="list-item">
+                        <div style="flex: 1; padding-right: 10px;">
+                            <span style="font-weight:600; color:var(--c-teal); display:block; word-wrap: break-word;">${nameDisplay.toUpperCase()}</span>
+                            <div style="font-size:0.7rem; color:#888;">${timeStr} • ${item.mode ? item.mode.toUpperCase() : 'SOLO'}</div>
+                        </div>
+                        <div class="item-actions">
+                            ${badgeHtml}
+                            <button class="icon-btn btn-reset-one" title="Reset & Return Pick to Pool" onclick="resetSingleRegistration('${item.id}')">
+                                <span class="iconify" data-icon="solar:restart-bold"></span>
+                            </button>
+                        </div>
+                    </div>
+                `;
+            });
+
+            document.getElementById('participants-list').innerHTML = html || "<div style='text-align:center; padding:15px; color:#888;'>No participants found.</div>";
+        }
+
+        // --- GLOBAL RESET & UPLOAD ---
         window.triggerResetPool = function() {
             showConfirm("Delete All Names?", "This will remove everyone from the Tambiyolo. Cannot be undone.", async () => {
                 const q = await getDocs(collection(db, "participants"));
-                q.forEach(async (d) => { await deleteDoc(doc(db, "participants", d.id)); });
+                for (const d of q.docs) { await deleteDoc(doc(db, "participants", d.id)); }
                 showMessage("Success", "All names have been deleted.", "success");
             });
         }
 
         window.triggerResetRegistrations = function() {
-            showConfirm("Reset Participants?", "This clears the list of joined users. History will be lost.", async () => {
+            showConfirm("Reset All Participants?", "This clears the list of joined users AND returns all names in the Tambiyolo to available.", async () => {
                 const r = await getDocs(collection(db, "registrations"));
-                r.forEach(async (d) => { await deleteDoc(doc(db, "registrations", d.id)); });
-                showMessage("Success", "Participant list cleared.", "success");
+                for (const d of r.docs) { await deleteDoc(doc(db, "registrations", d.id)); }
+
+                // Also reset all isTaken flags to false so Tambiyolo is fresh
+                const p = await getDocs(collection(db, "participants"));
+                for (const d of p.docs) { await updateDoc(doc(db, "participants", d.id), { isTaken: false }); }
+
+                showMessage("Success", "All participants cleared and Tambiyolo reset.", "success");
             });
         }
 
@@ -381,38 +576,55 @@
             btn.disabled = false;
         }
 
+        // --- REAL-TIME LISTENERS ---
         function startListeners() {
             onSnapshot(query(collection(db, "registrations"), orderBy("timestamp", "desc")), (snapshot) => {
-                let html = "";
+                regListCache = [];
                 let totalUsers = 0;
-                snapshot.forEach(doc => {
-                    const data = doc.data();
-                    const participants = data.participants || [];
-                    let nameDisplay = data.mode === 'solo' ? participants[0] : `Group (${participants.length}): ${participants.join(", ")}`;
-                    html += `<div class="list-item">
-                            <div style="flex: 1; padding-right: 10px;">
-                                <span style="font-weight:600; color:var(--c-teal); display:block; word-wrap: break-word;">${nameDisplay.toUpperCase()}</span>
-                                <div style="font-size:0.7rem; color:#888;">${new Date(data.timestamp.toDate()).toLocaleTimeString()}</div>
-                            </div>
-                            <span class="status-badge status-done">JOINED</span></div>`;
-                    totalUsers += participants.length;
+
+                snapshot.forEach(d => {
+                    const data = d.data();
+                    regListCache.push({ id: d.id, ...data });
+                    totalUsers += (data.participants || []).length;
                 });
-                document.getElementById('participants-list').innerHTML = html || "<div style='text-align:center; padding:10px;'>No one yet.</div>";
+
                 document.getElementById('count-users').innerText = totalUsers;
+                renderParticipantsList();
             });
 
             onSnapshot(collection(db, "participants"), (snapshot) => {
                 let html = "";
                 let totalPool = 0;
                 let takenCount = 0;
-                snapshot.forEach(doc => {
-                    const data = doc.data();
+                poolMap = {};
+
+                snapshot.forEach(d => {
+                    const data = d.data();
+                    poolMap[d.id] = data.name;
                     totalPool++;
                     if(data.isTaken) takenCount++;
-                    html += `<div class="list-item" style="padding: 5px;"><span style="font-size: 0.8rem;">${data.name}</span>
-                            ${data.isTaken ? '<span class="iconify" data-icon="solar:check-circle-bold" style="color:var(--c-red)"></span>' : '<span class="iconify" data-icon="solar:clock-circle-linear" style="color:#ccc"></span>'}</div>`;
+
+                    html += `
+                        <div class="list-item" style="padding: 8px 5px;">
+                            <div style="display:flex; align-items:center; gap:8px; flex:1;">
+                                ${data.isTaken 
+                                    ? '<span class="iconify" data-icon="solar:check-circle-bold" style="color:var(--c-red); font-size:1.1rem;" title="Already Picked"></span>' 
+                                    : '<span class="iconify" data-icon="solar:clock-circle-linear" style="color:#aaa; font-size:1.1rem;" title="Available"></span>'}
+                                <span style="font-size: 0.85rem; font-weight:500;">${data.name}</span>
+                            </div>
+                            <div class="item-actions">
+                                <button class="icon-btn btn-edit" title="Edit Name" onclick="openEditModal('${d.id}')">
+                                    <span class="iconify" data-icon="solar:pen-bold"></span>
+                                </button>
+                                <button class="icon-btn btn-del-one" title="Delete Name" onclick="deleteSinglePoolName('${d.id}')">
+                                    <span class="iconify" data-icon="solar:trash-bin-minimalistic-bold"></span>
+                                </button>
+                            </div>
+                        </div>
+                    `;
                 });
-                document.getElementById('pool-list').innerHTML = html || "<div style='text-align:center; padding:10px;'>Pool empty.</div>";
+
+                document.getElementById('pool-list').innerHTML = html || "<div style='text-align:center; padding:10px; color:#888;'>Pool empty.</div>";
                 document.getElementById('count-pool').innerText = totalPool;
                 document.getElementById('count-done').innerText = takenCount;
             });
