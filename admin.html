@@ -137,6 +137,7 @@
         }
         .btn-edit { background: var(--c-teal); color: white; }
         .btn-reset-one { background: var(--c-pink); color: var(--c-red); border: 1px solid var(--c-red) !important; }
+        .btn-return-pool { background: var(--c-green); color: var(--c-teal); }
         .btn-del-one { background: #eee; color: #666; }
         .btn-del-one:hover { background: var(--c-red); color: white; }
         
@@ -285,7 +286,7 @@
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-        import { getFirestore, collection, writeBatch, doc, getDocs, deleteDoc, updateDoc, onSnapshot, query, orderBy } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+        import { getFirestore, collection, writeBatch, doc, getDocs, deleteDoc, updateDoc, onSnapshot, query, orderBy, where } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
         // *** CREDENTIALS ***
         const firebaseConfig = {
@@ -301,7 +302,7 @@
         const app = initializeApp(firebaseConfig);
         const db = getFirestore(app);
 
-        // Local caches for safe modal editing/resetting
+        // Local caches
         let poolMap = {};
         let regListCache = [];
         let currentFilter = 'all';
@@ -386,7 +387,7 @@
             document.getElementById('confirmModal').style.display = 'none';
         }
 
-        // --- EDIT NAME IN POOL ---
+        // --- EDIT / DELETE / MANUAL RETURN IN NAME POOL ---
         window.openEditModal = function(docId) {
             editingDocId = docId;
             document.getElementById('editNameInput').value = poolMap[docId] || "";
@@ -415,6 +416,22 @@
             }
         }
 
+        window.resetSinglePoolStatus = function(docId) {
+            const name = poolMap[docId] || "this name";
+            showConfirm("Return to Available?", `Ibalik si "${name}" sa Tambiyolo para pwedeng mabunot ulit?`, async () => {
+                try {
+                    await updateDoc(doc(db, "participants", docId), {
+                        isTaken: false,
+                        pickedByRegId: null
+                    });
+                    showMessage("Returned!", `"${name}" is now available again in the Tambiyolo.`, "success");
+                } catch (e) {
+                    console.error(e);
+                    showMessage("Error", "Failed to update status.", "error");
+                }
+            });
+        }
+
         window.deleteSinglePoolName = function(docId) {
             const name = poolMap[docId] || "this name";
             showConfirm("Delete Name?", `Remove "${name}" from the Tambiyolo?`, async () => {
@@ -428,7 +445,7 @@
             });
         }
 
-        // --- INDIVIDUAL RESET FOR WHO JOINED ---
+        // --- INDIVIDUAL RESET FOR WHO JOINED (FIXED SYNC WITH NAME POOL) ---
         window.resetSingleRegistration = function(regId) {
             const reg = regListCache.find(r => r.id === regId);
             if (!reg) return;
@@ -438,25 +455,58 @@
 
             showConfirm(
                 "Reset Participant?",
-                `Reset "${label}"? Ibabalik sa Tambiyolo ang nabunot nila para makabunot sila ulit.`,
+                `Reset "${label}"? Ibabalik sa Name Pool ang nabunot nila para makabunot sila ulit.`,
                 async () => {
                     try {
-                        // 1. Return their picked name(s) back to the Tambiyolo (isTaken: false)
+                        const batch = writeBatch(db);
+                        const returnedIds = new Set();
+
+                        // 1. Return names via pickedDocIds stored in registration
                         const pickedDocIds = reg.pickedDocIds || [];
                         for (const pDocId of pickedDocIds) {
-                            try {
-                                await updateDoc(doc(db, "participants", pDocId), { isTaken: false });
-                            } catch (err) {
-                                console.warn("Pool doc might already be deleted:", pDocId);
+                            if (poolMap[pDocId] !== undefined) {
+                                batch.update(doc(db, "participants", pDocId), {
+                                    isTaken: false,
+                                    pickedByRegId: null
+                                });
+                                returnedIds.add(pDocId);
                             }
                         }
 
-                        // 2. Delete their registration record so they can join/pick again
-                        await deleteDoc(doc(db, "registrations", regId));
-                        showMessage("Reset Complete!", `"${label}" has been reset and their pick was returned to the Tambiyolo.`, "success");
+                        // 2. Fallback: Query Name Pool directly using pickedByRegId
+                        const linkedQuery = query(collection(db, "participants"), where("pickedByRegId", "==", regId));
+                        const linkedSnap = await getDocs(linkedQuery);
+                        linkedSnap.forEach(d => {
+                            if (!returnedIds.has(d.id)) {
+                                batch.update(doc(db, "participants", d.id), {
+                                    isTaken: false,
+                                    pickedByRegId: null
+                                });
+                                returnedIds.add(d.id);
+                            }
+                        });
+
+                        // 3. Delete their registration record so they can join/pick again
+                        batch.delete(doc(db, "registrations", regId));
+
+                        await batch.commit();
+
+                        if (returnedIds.size > 0) {
+                            showMessage(
+                                "Reset Complete!",
+                                `"${label}" has been reset and ${returnedIds.size} name(s) were returned to Available in the Name Pool.`,
+                                "success"
+                            );
+                        } else {
+                            showMessage(
+                                "Participant Reset",
+                                `"${label}" was removed. (Note: Kung lumang bunot ito bago i-update ang index.html, pindutin lang ang green reset icon sa Name Pool para ibalik sa Available.)`,
+                                "success"
+                            );
+                        }
                     } catch (e) {
                         console.error(e);
-                        showMessage("Error", "Failed to reset participant.", "error");
+                        showMessage("Error", "Failed to reset participant. Check console.", "error");
                     }
                 }
             );
@@ -489,7 +539,6 @@
                 if (item.mode === 'solo') {
                     nameDisplay = participants[0] || "Unknown";
                 } else {
-                    // Show checkmarks for each member who already picked (still hiding WHO they picked)
                     const memberTags = participants.map(m => {
                         const hasPicked = pickedPlayers.includes(m);
                         return hasPicked ? `${m} ✓` : `${m} (waiting)`;
@@ -497,7 +546,6 @@
                     nameDisplay = `Group (${totalMembers}): ${memberTags.join(", ")}`;
                 }
 
-                // Determine Badge
                 let badgeHtml = `<span class="status-badge status-waiting">WAITING</span>`;
                 if (pickedCount > 0 && pickedCount >= totalMembers) {
                     badgeHtml = `<span class="status-badge status-done">PICKED ✓</span>`;
@@ -540,9 +588,13 @@
                 const r = await getDocs(collection(db, "registrations"));
                 for (const d of r.docs) { await deleteDoc(doc(db, "registrations", d.id)); }
 
-                // Also reset all isTaken flags to false so Tambiyolo is fresh
                 const p = await getDocs(collection(db, "participants"));
-                for (const d of p.docs) { await updateDoc(doc(db, "participants", d.id), { isTaken: false }); }
+                for (const d of p.docs) {
+                    await updateDoc(doc(db, "participants", d.id), {
+                        isTaken: false,
+                        pickedByRegId: null
+                    });
+                }
 
                 showMessage("Success", "All participants cleared and Tambiyolo reset.", "success");
             });
@@ -563,7 +615,12 @@
 
             const batch = writeBatch(db);
             cleanNames.forEach(name => {
-                batch.set(doc(collection(db, "participants")), { name: name, isTaken: false, createdAt: new Date() });
+                batch.set(doc(collection(db, "participants")), {
+                    name: name,
+                    isTaken: false,
+                    pickedByRegId: null,
+                    createdAt: new Date()
+                });
             });
 
             try { 
@@ -613,6 +670,11 @@
                                 <span style="font-size: 0.85rem; font-weight:500;">${data.name}</span>
                             </div>
                             <div class="item-actions">
+                                ${data.isTaken 
+                                    ? `<button class="icon-btn btn-return-pool" title="Return to Available" onclick="resetSinglePoolStatus('${d.id}')">
+                                            <span class="iconify" data-icon="solar:restart-bold"></span>
+                                       </button>`
+                                    : ''}
                                 <button class="icon-btn btn-edit" title="Edit Name" onclick="openEditModal('${d.id}')">
                                     <span class="iconify" data-icon="solar:pen-bold"></span>
                                 </button>
