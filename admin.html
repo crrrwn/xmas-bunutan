@@ -237,7 +237,6 @@
             <div class="panel">
                 <h2><span class="iconify" data-icon="solar:box-minimalistic-bold-duotone"></span> Name Pool</h2>
 
-                <!-- Pool Filter Tabs -->
                 <div class="filter-tabs">
                     <button class="filter-tab active" id="pool-tab-all" onclick="setPoolFilter('all')">All</button>
                     <button class="filter-tab" id="pool-tab-avail" onclick="setPoolFilter('available')">Available</button>
@@ -409,21 +408,47 @@
             document.getElementById('confirmModal').style.display = 'none';
         }
 
-        // --- CHECK IF A POOL ITEM IS UNLINKED (NAPILI PERO WALA SA WHO JOINED) ---
+        // --- HELPER: CHECK IF REGISTRATION ALREADY PICKED (INCLUDES LEGACY RECORDS) ---
+        function isLegacyPicked(regItem) {
+            // Records from older index.html had status: 'started' and no pickedPlayers array
+            return regItem.status === 'started' && !Array.isArray(regItem.pickedPlayers);
+        }
+
+        function isRegistrationPicked(regItem) {
+            if (regItem.status === 'done') return true;
+            if (isLegacyPicked(regItem)) return true;
+            return (regItem.pickedPlayers && regItem.pickedPlayers.length > 0);
+        }
+
+        // --- HELPER: CHECK IF A POOL ITEM IS TRULY UNLINKED ---
         function isPoolItemUnlinked(poolItem) {
             if (!poolItem.isTaken) return false;
 
-            const activeRegIds = new Set(regListCache.map(r => r.id));
-            const activePickedDocIds = new Set();
-            regListCache.forEach(r => {
-                (r.pickedDocIds || []).forEach(id => activePickedDocIds.add(id));
-            });
+            // If it has a pickedByRegId, check if that registration still exists
+            if (poolItem.pickedByRegId) {
+                const activeRegIds = new Set(regListCache.map(r => r.id));
+                return !activeRegIds.has(poolItem.pickedByRegId);
+            }
 
-            // Linked if pickedByRegId exists in active registrations OR doc ID is in any active registration's pickedDocIds
-            const hasActiveReg = poolItem.pickedByRegId && activeRegIds.has(poolItem.pickedByRegId);
-            const inPickedList = activePickedDocIds.has(poolItem.id);
+            // If it has NO pickedByRegId (old version), only flag as unlinked if there are NO legacy registrations left
+            const hasLegacyRegs = regListCache.some(isLegacyPicked);
+            return !hasLegacyRegs;
+        }
 
-            return !(hasActiveReg || inPickedList);
+        // --- MANUAL MARK AS PICKED (FOR WAITING ITEMS) ---
+        window.markAsPickedManually = async function(regId) {
+            const reg = regListCache.find(r => r.id === regId);
+            if (!reg) return;
+            try {
+                await updateDoc(doc(db, "registrations", regId), {
+                    status: 'done',
+                    pickedPlayers: reg.participants || []
+                });
+                showMessage("Updated!", "Marked as PICKED ✓.", "success");
+            } catch (e) {
+                console.error(e);
+                showMessage("Error", "Failed to update status.", "error");
+            }
         }
 
         // --- EDIT / DELETE / RETURN IN NAME POOL ---
@@ -585,14 +610,15 @@
             let html = "";
             const filtered = regListCache.filter(item => {
                 if (currentFilter === 'picked') {
-                    return (item.pickedPlayers && item.pickedPlayers.length > 0);
+                    return isRegistrationPicked(item);
                 }
                 return true;
             });
 
             filtered.forEach(item => {
                 const participants = item.participants || [];
-                const pickedPlayers = item.pickedPlayers || [];
+                const legacy = isLegacyPicked(item);
+                const pickedPlayers = legacy ? participants : (item.pickedPlayers || []);
                 const pickedCount = pickedPlayers.length;
                 const totalMembers = participants.length;
 
@@ -607,11 +633,14 @@
                     nameDisplay = `Group (${totalMembers}): ${memberTags.join(", ")}`;
                 }
 
+                let isWaiting = false;
                 let badgeHtml = `<span class="status-badge status-waiting">WAITING</span>`;
-                if (pickedCount > 0 && pickedCount >= totalMembers) {
+                if (item.status === 'done' || legacy || (pickedCount > 0 && pickedCount >= totalMembers)) {
                     badgeHtml = `<span class="status-badge status-done">PICKED ✓</span>`;
                 } else if (pickedCount > 0) {
                     badgeHtml = `<span class="status-badge status-picking">PICKED (${pickedCount}/${totalMembers})</span>`;
+                } else {
+                    isWaiting = true;
                 }
 
                 const timeStr = item.timestamp ? new Date(item.timestamp.toDate()).toLocaleTimeString() : 'Just now';
@@ -624,6 +653,11 @@
                         </div>
                         <div class="item-actions">
                             ${badgeHtml}
+                            ${isWaiting 
+                                ? `<button class="icon-btn btn-return-pool" title="Mark as Picked" onclick="markAsPickedManually('${item.id}')">
+                                        <span class="iconify" data-icon="solar:check-read-bold"></span>
+                                   </button>`
+                                : ''}
                             <button class="icon-btn btn-reset-one" title="Reset & Return Pick to Pool" onclick="resetSingleRegistration('${item.id}')">
                                 <span class="iconify" data-icon="solar:restart-bold"></span>
                             </button>
@@ -763,7 +797,7 @@
 
                 document.getElementById('count-users').innerText = totalUsers;
                 renderParticipantsList();
-                renderPoolList(); // Re-check unlinked items whenever registrations change
+                renderPoolList();
             });
 
             onSnapshot(collection(db, "participants"), (snapshot) => {
