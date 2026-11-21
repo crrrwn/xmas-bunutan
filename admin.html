@@ -95,34 +95,35 @@
         header h1 { margin: 0; font-size: clamp(1.2rem, 4vw, 1.8rem); }
         .header-actions { display: flex; gap: 10px; }
 
-        .stat-cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 15px; margin-bottom: 30px; }
+        .stat-cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; margin-bottom: 30px; }
         .card { background: var(--glass); padding: 20px; border-radius: 15px; box-shadow: 0 5px 15px rgba(0,0,0,0.1); border-bottom: 5px solid var(--c-red); }
-        .card h3 { margin: 0; font-size: 0.85rem; color: #666; text-transform: uppercase; letter-spacing: 0.5px; }
-        .card .number { font-size: 2.5rem; font-weight: 700; color: var(--c-teal); }
+        .card h3 { margin: 0; font-size: 0.8rem; color: #666; text-transform: uppercase; letter-spacing: 0.5px; }
+        .card .number { font-size: 2.3rem; font-weight: 700; color: var(--c-teal); }
 
-        .main-grid { display: grid; grid-template-columns: 2fr 1.5fr; gap: 20px; }
+        .main-grid { display: grid; grid-template-columns: 1.6fr 1.6fr; gap: 20px; }
         @media (max-width: 768px) {
             body { padding: 15px; } .main-grid { grid-template-columns: 1fr; } 
             header { flex-direction: column; align-items: flex-start; }
             .header-actions { width: 100%; justify-content: space-between; }
             .header-actions button { width: 48%; }
-            .stat-cards { grid-template-columns: 1fr; } 
+            .stat-cards { grid-template-columns: 1fr 1fr; } 
         }
 
         .panel { background: var(--glass); padding: 25px; border-radius: 15px; height: fit-content; }
         h2 { color: var(--c-teal); display: flex; align-items: center; gap: 10px; font-size: 1.1rem; margin-top: 0; }
 
-        .list-container { max-height: 500px; overflow-y: auto; margin-top: 15px; padding-right: 5px; }
+        .list-container { max-height: 450px; overflow-y: auto; margin-top: 10px; padding-right: 5px; }
         .list-container::-webkit-scrollbar { width: 6px; }
         .list-container::-webkit-scrollbar-thumb { background-color: #ccc; border-radius: 10px; }
-        .list-item { display: flex; justify-content: space-between; align-items: center; gap: 10px; padding: 12px; border-bottom: 1px solid #eee; font-size: 0.9rem; }
+        .list-item { display: flex; justify-content: space-between; align-items: center; gap: 10px; padding: 10px; border-bottom: 1px solid #eee; font-size: 0.9rem; }
         .list-item:last-child { border-bottom: none; }
 
         /* Status Badges */
-        .status-badge { padding: 4px 10px; border-radius: 20px; font-size: 0.7rem; font-weight: 600; white-space: nowrap; }
+        .status-badge { padding: 4px 10px; border-radius: 20px; font-size: 0.68rem; font-weight: 600; white-space: nowrap; }
         .status-done { background: var(--c-green); color: var(--c-teal); }
         .status-picking { background: #FFF3CD; color: #856404; }
         .status-waiting { background: #eee; color: #777; }
+        .status-unlinked { background: #FFE0B2; color: #E65100; border: 1px solid #FFB74D; }
 
         /* Small Action Icon Buttons */
         .item-actions { display: flex; align-items: center; gap: 6px; flex-shrink: 0; }
@@ -141,21 +142,23 @@
         .btn-del-one { background: #eee; color: #666; }
         .btn-del-one:hover { background: var(--c-red); color: white; }
         
-        textarea { width: 100%; padding: 12px; border: 2px solid #ddd; border-radius: 10px; font-family: inherit; box-sizing: border-box; margin-bottom: 10px; height: 120px; resize: vertical; }
+        textarea { width: 100%; padding: 12px; border: 2px solid #ddd; border-radius: 10px; font-family: inherit; box-sizing: border-box; margin-bottom: 10px; height: 110px; resize: vertical; }
 
         button { background: var(--c-red); color: white; border: none; padding: 12px; border-radius: 10px; cursor: pointer; font-weight: 600; width: 100%; transition: 0.2s; font-family: 'Poppins', sans-serif; display: flex; justify-content: center; align-items: center; gap: 8px; }
         button:hover { opacity: 0.9; transform: translateY(-2px); }
         .btn-outline { background: transparent; border: 2px solid var(--c-red); color: var(--c-red); }
+        .btn-warning { background: #FF9800; color: white; font-size: 0.8rem; padding: 10px; margin-bottom: 12px; }
         .btn-refresh { background: var(--c-pink); color: var(--c-teal); }
         .btn-logout { background: #333; color: white; }
 
-        /* Filter Tabs for Who Joined */
-        .filter-tabs { display: flex; gap: 8px; margin-bottom: 10px; }
+        /* Filter Tabs */
+        .filter-tabs { display: flex; gap: 6px; margin-bottom: 10px; flex-wrap: wrap; }
         .filter-tab {
-            width: auto; padding: 6px 12px; font-size: 0.75rem; border-radius: 20px;
+            width: auto; padding: 6px 12px; font-size: 0.72rem; border-radius: 20px;
             background: #eee; color: #555; font-weight: 600;
         }
         .filter-tab.active { background: var(--c-teal); color: white; }
+        .filter-tab.warn-tab.active { background: #E65100; color: white; }
     </style>
 </head>
 <body>
@@ -203,16 +206,20 @@
                 <h3>Already Picked</h3>
                 <div class="number" id="count-done">0</div>
             </div>
+            <div class="card" style="border-color: #FF9800;">
+                <h3>Wala sa Who Joined</h3>
+                <div class="number" id="count-unlinked" style="color: #E65100;">0</div>
+            </div>
         </div>
 
         <div class="main-grid">
+            <!-- LEFT: WHO JOINED -->
             <div class="panel">
                 <h2><span class="iconify" data-icon="solar:users-group-rounded-bold-duotone"></span> Who Joined?</h2>
                 <p style="font-size: 0.8rem; color: #666; margin-top: 0;">
                     Track who already picked. <span style="color:var(--c-red)">Picks are hidden.</span>
                 </p>
 
-                <!-- Filter Buttons -->
                 <div class="filter-tabs">
                     <button class="filter-tab active" id="tab-all" onclick="setFilter('all')">All Joined</button>
                     <button class="filter-tab" id="tab-picked" onclick="setFilter('picked')">Picked Only</button>
@@ -226,9 +233,22 @@
                 </button>
             </div>
 
+            <!-- RIGHT: NAME POOL -->
             <div class="panel">
                 <h2><span class="iconify" data-icon="solar:box-minimalistic-bold-duotone"></span> Name Pool</h2>
-                <div class="list-container" id="pool-list" style="max-height: 250px; background: #fff; padding: 10px; border-radius: 10px; border: 1px solid #eee; margin-bottom: 20px;">
+
+                <!-- Pool Filter Tabs -->
+                <div class="filter-tabs">
+                    <button class="filter-tab active" id="pool-tab-all" onclick="setPoolFilter('all')">All</button>
+                    <button class="filter-tab" id="pool-tab-avail" onclick="setPoolFilter('available')">Available</button>
+                    <button class="filter-tab warn-tab" id="pool-tab-unlinked" onclick="setPoolFilter('unlinked')">Wala sa Who Joined (<span id="badge-unlinked">0</span>)</button>
+                </div>
+
+                <button id="returnUnlinkedBtn" class="btn-warning" style="display:none;" onclick="triggerReturnAllUnlinked()">
+                    <span class="iconify" data-icon="solar:restart-bold"></span> Return All Unlinked to Available
+                </button>
+
+                <div class="list-container" id="pool-list" style="max-height: 260px; background: #fff; padding: 10px; border-radius: 10px; border: 1px solid #eee; margin-bottom: 20px;">
                 </div>
                 
                 <label style="font-size: 0.8rem; font-weight: bold;">Add Names (Enter key to separate):</label>
@@ -303,9 +323,11 @@
         const db = getFirestore(app);
 
         // Local caches
+        let poolListCache = [];
         let poolMap = {};
         let regListCache = [];
         let currentFilter = 'all';
+        let currentPoolFilter = 'all';
         let editingDocId = null;
 
         // --- AUTH & SESSION ---
@@ -387,7 +409,24 @@
             document.getElementById('confirmModal').style.display = 'none';
         }
 
-        // --- EDIT / DELETE / MANUAL RETURN IN NAME POOL ---
+        // --- CHECK IF A POOL ITEM IS UNLINKED (NAPILI PERO WALA SA WHO JOINED) ---
+        function isPoolItemUnlinked(poolItem) {
+            if (!poolItem.isTaken) return false;
+
+            const activeRegIds = new Set(regListCache.map(r => r.id));
+            const activePickedDocIds = new Set();
+            regListCache.forEach(r => {
+                (r.pickedDocIds || []).forEach(id => activePickedDocIds.add(id));
+            });
+
+            // Linked if pickedByRegId exists in active registrations OR doc ID is in any active registration's pickedDocIds
+            const hasActiveReg = poolItem.pickedByRegId && activeRegIds.has(poolItem.pickedByRegId);
+            const inPickedList = activePickedDocIds.has(poolItem.id);
+
+            return !(hasActiveReg || inPickedList);
+        }
+
+        // --- EDIT / DELETE / RETURN IN NAME POOL ---
         window.openEditModal = function(docId) {
             editingDocId = docId;
             document.getElementById('editNameInput').value = poolMap[docId] || "";
@@ -432,6 +471,32 @@
             });
         }
 
+        window.triggerReturnAllUnlinked = function() {
+            const unlinkedItems = poolListCache.filter(isPoolItemUnlinked);
+            if (unlinkedItems.length === 0) return;
+
+            showConfirm(
+                "Return All Unlinked?",
+                `Ibalik sa Available ang ${unlinkedItems.length} name(s) na naka-picked pero wala sa Who Joined?`,
+                async () => {
+                    try {
+                        const batch = writeBatch(db);
+                        unlinkedItems.forEach(item => {
+                            batch.update(doc(db, "participants", item.id), {
+                                isTaken: false,
+                                pickedByRegId: null
+                            });
+                        });
+                        await batch.commit();
+                        showMessage("Done!", `${unlinkedItems.length} name(s) returned to Available.`, "success");
+                    } catch (e) {
+                        console.error(e);
+                        showMessage("Error", "Failed to return unlinked names.", "error");
+                    }
+                }
+            );
+        }
+
         window.deleteSinglePoolName = function(docId) {
             const name = poolMap[docId] || "this name";
             showConfirm("Delete Name?", `Remove "${name}" from the Tambiyolo?`, async () => {
@@ -445,7 +510,7 @@
             });
         }
 
-        // --- INDIVIDUAL RESET FOR WHO JOINED (FIXED SYNC WITH NAME POOL) ---
+        // --- INDIVIDUAL RESET FOR WHO JOINED ---
         window.resetSingleRegistration = function(regId) {
             const reg = regListCache.find(r => r.id === regId);
             if (!reg) return;
@@ -461,7 +526,6 @@
                         const batch = writeBatch(db);
                         const returnedIds = new Set();
 
-                        // 1. Return names via pickedDocIds stored in registration
                         const pickedDocIds = reg.pickedDocIds || [];
                         for (const pDocId of pickedDocIds) {
                             if (poolMap[pDocId] !== undefined) {
@@ -473,7 +537,6 @@
                             }
                         }
 
-                        // 2. Fallback: Query Name Pool directly using pickedByRegId
                         const linkedQuery = query(collection(db, "participants"), where("pickedByRegId", "==", regId));
                         const linkedSnap = await getDocs(linkedQuery);
                         linkedSnap.forEach(d => {
@@ -486,38 +549,36 @@
                             }
                         });
 
-                        // 3. Delete their registration record so they can join/pick again
                         batch.delete(doc(db, "registrations", regId));
-
                         await batch.commit();
 
-                        if (returnedIds.size > 0) {
-                            showMessage(
-                                "Reset Complete!",
-                                `"${label}" has been reset and ${returnedIds.size} name(s) were returned to Available in the Name Pool.`,
-                                "success"
-                            );
-                        } else {
-                            showMessage(
-                                "Participant Reset",
-                                `"${label}" was removed. (Note: Kung lumang bunot ito bago i-update ang index.html, pindutin lang ang green reset icon sa Name Pool para ibalik sa Available.)`,
-                                "success"
-                            );
-                        }
+                        showMessage(
+                            "Reset Complete!",
+                            `"${label}" has been reset (${returnedIds.size} name(s) returned to Available).`,
+                            "success"
+                        );
                     } catch (e) {
                         console.error(e);
-                        showMessage("Error", "Failed to reset participant. Check console.", "error");
+                        showMessage("Error", "Failed to reset participant.", "error");
                     }
                 }
             );
         }
 
-        // --- FILTER WHO JOINED ---
+        // --- FILTERS & RENDERERS ---
         window.setFilter = function(filter) {
             currentFilter = filter;
             document.getElementById('tab-all').className = filter === 'all' ? 'filter-tab active' : 'filter-tab';
             document.getElementById('tab-picked').className = filter === 'picked' ? 'filter-tab active' : 'filter-tab';
             renderParticipantsList();
+        }
+
+        window.setPoolFilter = function(filter) {
+            currentPoolFilter = filter;
+            document.getElementById('pool-tab-all').className = filter === 'all' ? 'filter-tab active' : 'filter-tab';
+            document.getElementById('pool-tab-avail').className = filter === 'available' ? 'filter-tab active' : 'filter-tab';
+            document.getElementById('pool-tab-unlinked').className = filter === 'unlinked' ? 'filter-tab warn-tab active' : 'filter-tab warn-tab';
+            renderPoolList();
         }
 
         function renderParticipantsList() {
@@ -572,6 +633,61 @@
             });
 
             document.getElementById('participants-list').innerHTML = html || "<div style='text-align:center; padding:15px; color:#888;'>No participants found.</div>";
+        }
+
+        function renderPoolList() {
+            let totalPool = poolListCache.length;
+            let takenCount = 0;
+            let unlinkedCount = 0;
+
+            poolListCache.forEach(item => {
+                if (item.isTaken) takenCount++;
+                if (isPoolItemUnlinked(item)) unlinkedCount++;
+            });
+
+            document.getElementById('count-pool').innerText = totalPool;
+            document.getElementById('count-done').innerText = takenCount;
+            document.getElementById('count-unlinked').innerText = unlinkedCount;
+            document.getElementById('badge-unlinked').innerText = unlinkedCount;
+            document.getElementById('returnUnlinkedBtn').style.display = unlinkedCount > 0 ? 'flex' : 'none';
+
+            const filtered = poolListCache.filter(item => {
+                if (currentPoolFilter === 'available') return !item.isTaken;
+                if (currentPoolFilter === 'unlinked') return isPoolItemUnlinked(item);
+                return true;
+            });
+
+            let html = "";
+            filtered.forEach(item => {
+                const unlinked = isPoolItemUnlinked(item);
+
+                html += `
+                    <div class="list-item" style="padding: 8px 5px; ${unlinked ? 'background: #FFF8E1; border-radius: 8px;' : ''}">
+                        <div style="display:flex; align-items:center; gap:8px; flex:1; flex-wrap:wrap;">
+                            ${item.isTaken 
+                                ? '<span class="iconify" data-icon="solar:check-circle-bold" style="color:var(--c-red); font-size:1.1rem;" title="Already Picked"></span>' 
+                                : '<span class="iconify" data-icon="solar:clock-circle-linear" style="color:#aaa; font-size:1.1rem;" title="Available"></span>'}
+                            <span style="font-size: 0.85rem; font-weight:500;">${item.name}</span>
+                            ${unlinked ? '<span class="status-badge status-unlinked">WALA SA JOINED</span>' : ''}
+                        </div>
+                        <div class="item-actions">
+                            ${item.isTaken 
+                                ? `<button class="icon-btn btn-return-pool" title="Return to Available" onclick="resetSinglePoolStatus('${item.id}')">
+                                        <span class="iconify" data-icon="solar:restart-bold"></span>
+                                   </button>`
+                                : ''}
+                            <button class="icon-btn btn-edit" title="Edit Name" onclick="openEditModal('${item.id}')">
+                                <span class="iconify" data-icon="solar:pen-bold"></span>
+                            </button>
+                            <button class="icon-btn btn-del-one" title="Delete Name" onclick="deleteSinglePoolName('${item.id}')">
+                                <span class="iconify" data-icon="solar:trash-bin-minimalistic-bold"></span>
+                            </button>
+                        </div>
+                    </div>
+                `;
+            });
+
+            document.getElementById('pool-list').innerHTML = html || "<div style='text-align:center; padding:10px; color:#888;'>No names found.</div>";
         }
 
         // --- GLOBAL RESET & UPLOAD ---
@@ -647,48 +763,20 @@
 
                 document.getElementById('count-users').innerText = totalUsers;
                 renderParticipantsList();
+                renderPoolList(); // Re-check unlinked items whenever registrations change
             });
 
             onSnapshot(collection(db, "participants"), (snapshot) => {
-                let html = "";
-                let totalPool = 0;
-                let takenCount = 0;
+                poolListCache = [];
                 poolMap = {};
 
                 snapshot.forEach(d => {
                     const data = d.data();
                     poolMap[d.id] = data.name;
-                    totalPool++;
-                    if(data.isTaken) takenCount++;
-
-                    html += `
-                        <div class="list-item" style="padding: 8px 5px;">
-                            <div style="display:flex; align-items:center; gap:8px; flex:1;">
-                                ${data.isTaken 
-                                    ? '<span class="iconify" data-icon="solar:check-circle-bold" style="color:var(--c-red); font-size:1.1rem;" title="Already Picked"></span>' 
-                                    : '<span class="iconify" data-icon="solar:clock-circle-linear" style="color:#aaa; font-size:1.1rem;" title="Available"></span>'}
-                                <span style="font-size: 0.85rem; font-weight:500;">${data.name}</span>
-                            </div>
-                            <div class="item-actions">
-                                ${data.isTaken 
-                                    ? `<button class="icon-btn btn-return-pool" title="Return to Available" onclick="resetSinglePoolStatus('${d.id}')">
-                                            <span class="iconify" data-icon="solar:restart-bold"></span>
-                                       </button>`
-                                    : ''}
-                                <button class="icon-btn btn-edit" title="Edit Name" onclick="openEditModal('${d.id}')">
-                                    <span class="iconify" data-icon="solar:pen-bold"></span>
-                                </button>
-                                <button class="icon-btn btn-del-one" title="Delete Name" onclick="deleteSinglePoolName('${d.id}')">
-                                    <span class="iconify" data-icon="solar:trash-bin-minimalistic-bold"></span>
-                                </button>
-                            </div>
-                        </div>
-                    `;
+                    poolListCache.push({ id: d.id, ...data });
                 });
 
-                document.getElementById('pool-list').innerHTML = html || "<div style='text-align:center; padding:10px; color:#888;'>Pool empty.</div>";
-                document.getElementById('count-pool').innerText = totalPool;
-                document.getElementById('count-done').innerText = takenCount;
+                renderPoolList();
             });
         }
     </script>
