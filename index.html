@@ -414,7 +414,6 @@
 
                     const chosenDoc = eligibleDocs[Math.floor(Math.random() * eligibleDocs.length)];
 
-                    // Link pick to registration ID so Admin can verify & reset cleanly
                     transaction.update(chosenDoc.ref, { 
                         isTaken: true,
                         pickedByRegId: sessionDocId
