@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Christmas Bunutan </title>
+    <title>Christmas Bunutan</title>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;800&display=swap" rel="stylesheet">
     <script src="https://code.iconify.design/3/3.1.0/iconify.min.js"></script>
     
@@ -278,7 +278,6 @@
         let sessionDocId = null;
         let unsubscribeSession = null;
 
-        // --- MODAL HELPERS ---
         function showUserModal(title, body, icon = 'solar:info-circle-bold-duotone', onOk = null) {
             document.getElementById('userModalTitle').innerText = title;
             document.getElementById('userModalBody').innerText = body;
@@ -313,7 +312,6 @@
             }
         }
 
-        // Listen if Admin resets this participant's draw
         function watchAdminReset(docId) {
             if (unsubscribeSession) unsubscribeSession();
             let hasLoadedOnce = false;
@@ -321,7 +319,6 @@
                 if (snap.exists()) {
                     hasLoadedOnce = true;
                 } else if (hasLoadedOnce) {
-                    // Admin deleted/reset this registration and returned the pick to the pool
                     unsubscribeSession();
                     showUserModal(
                         "Draw Reset!",
@@ -400,7 +397,7 @@
                     const querySnapshot = await getDocs(q);
                     if (querySnapshot.empty) { throw "NO_MORE_NAMES"; }
 
-                    // Smarter Anti-Self-Pick (avoids exact match or partial match like "Juan" vs "Juan Dela Cruz")
+                    // Avoid picking own name if other names are available
                     const currentLower = currentPlayer.trim().toLowerCase();
                     let eligibleDocs = querySnapshot.docs.filter(d => {
                         const poolLower = d.data().name.trim().toLowerCase();
@@ -411,20 +408,18 @@
                         return true;
                     });
 
-                    // Fallback if the only remaining name is their own
                     if (eligibleDocs.length === 0) {
                         eligibleDocs = querySnapshot.docs;
                     }
 
                     const chosenDoc = eligibleDocs[Math.floor(Math.random() * eligibleDocs.length)];
 
-                    // Mark as taken AND tag with sessionDocId so Admin reset always returns it to the Name Pool
+                    // Link pick to registration ID so Admin can verify & reset cleanly
                     transaction.update(chosenDoc.ref, { 
                         isTaken: true,
                         pickedByRegId: sessionDocId
                     });
 
-                    // Record that this player picked (stores only doc ID for Admin Reset; picked name stays hidden)
                     if (sessionDocId) {
                         const regRef = doc(db, "registrations", sessionDocId);
                         const isLast = (currentQueueIndex >= playerQueue.length - 1);
