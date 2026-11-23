@@ -118,18 +118,6 @@
         .list-item { display: flex; justify-content: space-between; align-items: center; gap: 10px; padding: 10px; border-bottom: 1px solid #eee; font-size: 0.9rem; }
         .list-item:last-child { border-bottom: none; }
 
-        /* Picked Reveal Box */
-        .picked-reveal-box {
-            margin-top: 6px;
-            padding: 6px 10px;
-            background: var(--c-pink);
-            border-left: 3px solid var(--c-red);
-            border-radius: 6px;
-            font-size: 0.78rem;
-            color: var(--c-teal);
-            font-weight: 600;
-        }
-
         /* Status Badges */
         .status-badge { padding: 4px 10px; border-radius: 20px; font-size: 0.68rem; font-weight: 600; white-space: nowrap; }
         .status-done { background: var(--c-green); color: var(--c-teal); }
@@ -163,29 +151,14 @@
         .btn-refresh { background: var(--c-pink); color: var(--c-teal); }
         .btn-logout { background: #333; color: white; }
 
-        /* Filter Tabs & Reveal Toggle */
-        .filter-row { display: flex; justify-content: space-between; align-items: center; gap: 8px; margin-bottom: 10px; flex-wrap: wrap; }
-        .filter-tabs { display: flex; gap: 6px; flex-wrap: wrap; }
+        /* Filter Tabs */
+        .filter-tabs { display: flex; gap: 6px; margin-bottom: 10px; flex-wrap: wrap; }
         .filter-tab {
             width: auto; padding: 6px 12px; font-size: 0.72rem; border-radius: 20px;
             background: #eee; color: #555; font-weight: 600;
         }
         .filter-tab.active { background: var(--c-teal); color: white; }
         .filter-tab.warn-tab.active { background: #E65100; color: white; }
-
-        .btn-toggle-picks {
-            width: auto;
-            padding: 6px 12px;
-            font-size: 0.72rem;
-            border-radius: 20px;
-            background: var(--c-pink);
-            color: var(--c-red);
-            border: 1px solid var(--c-red);
-        }
-        .btn-toggle-picks.showing {
-            background: var(--c-red);
-            color: white;
-        }
     </style>
 </head>
 <body>
@@ -244,20 +217,12 @@
             <div class="panel">
                 <h2><span class="iconify" data-icon="solar:users-group-rounded-bold-duotone"></span> Who Joined?</h2>
                 <p style="font-size: 0.8rem; color: #666; margin-top: 0;">
-                    Track who already picked. Use the eye button to show or hide picks.
+                    Track who already picked. <span style="color:var(--c-red)">Picks are hidden.</span>
                 </p>
 
-                <div class="filter-row">
-                    <div class="filter-tabs">
-                        <button class="filter-tab active" id="tab-all" onclick="setFilter('all')">All Joined</button>
-                        <button class="filter-tab" id="tab-picked" onclick="setFilter('picked')">Picked Only</button>
-                    </div>
-
-                    <!-- SHOW / HIDE PICKS TOGGLE -->
-                    <button class="btn-toggle-picks" id="togglePicksBtn" onclick="toggleShowPicks()">
-                        <span class="iconify" id="togglePicksIcon" data-icon="solar:eye-bold"></span>
-                        <span id="togglePicksText">Show Picks</span>
-                    </button>
+                <div class="filter-tabs">
+                    <button class="filter-tab active" id="tab-all" onclick="setFilter('all')">All Joined</button>
+                    <button class="filter-tab" id="tab-picked" onclick="setFilter('picked')">Picked Only</button>
                 </div>
 
                 <div class="list-container" id="participants-list">
@@ -272,7 +237,7 @@
             <div class="panel">
                 <h2><span class="iconify" data-icon="solar:box-minimalistic-bold-duotone"></span> Name Pool</h2>
 
-                <div class="filter-tabs" style="margin-bottom: 10px;">
+                <div class="filter-tabs">
                     <button class="filter-tab active" id="pool-tab-all" onclick="setPoolFilter('all')">All</button>
                     <button class="filter-tab" id="pool-tab-avail" onclick="setPoolFilter('available')">Available</button>
                     <button class="filter-tab warn-tab" id="pool-tab-unlinked" onclick="setPoolFilter('unlinked')">Wala sa Who Joined (<span id="badge-unlinked">0</span>)</button>
@@ -363,7 +328,6 @@
         let currentFilter = 'all';
         let currentPoolFilter = 'all';
         let editingDocId = null;
-        let showPicks = false; // Default hidden
 
         // --- AUTH & SESSION ---
         window.addEventListener('load', () => {
@@ -406,25 +370,6 @@
             startListeners();
         }
 
-        // --- TOGGLE SHOW / HIDE PICKS ---
-        window.toggleShowPicks = function() {
-            showPicks = !showPicks;
-            const btn = document.getElementById('togglePicksBtn');
-            const icon = document.getElementById('togglePicksIcon');
-            const text = document.getElementById('togglePicksText');
-
-            if (showPicks) {
-                btn.classList.add('showing');
-                icon.setAttribute('data-icon', 'solar:eye-closed-bold');
-                text.innerText = 'Hide Picks';
-            } else {
-                btn.classList.remove('showing');
-                icon.setAttribute('data-icon', 'solar:eye-bold');
-                text.innerText = 'Show Picks';
-            }
-            renderParticipantsList();
-        }
-
         // --- MODAL SYSTEM ---
         window.showMessage = function(title, body, type = 'info') {
             const modal = document.getElementById('messageModal');
@@ -463,8 +408,9 @@
             document.getElementById('confirmModal').style.display = 'none';
         }
 
-        // --- HELPER: CHECK IF REGISTRATION ALREADY PICKED ---
+        // --- HELPER: CHECK IF REGISTRATION ALREADY PICKED (INCLUDES LEGACY RECORDS) ---
         function isLegacyPicked(regItem) {
+            // Records from older index.html had status: 'started' and no pickedPlayers array
             return regItem.status === 'started' && !Array.isArray(regItem.pickedPlayers);
         }
 
@@ -474,54 +420,22 @@
             return (regItem.pickedPlayers && regItem.pickedPlayers.length > 0);
         }
 
-        // --- HELPER: RESOLVE PICKED NAMES FOR A REGISTRATION ---
-        function getPickedNamesHtml(regItem) {
-            const pickedDocIds = regItem.pickedDocIds || [];
-            const pickedPlayers = regItem.pickedPlayers || [];
-
-            // Primary: use pickedDocIds saved in registration
-            if (pickedDocIds.length > 0) {
-                if (regItem.mode === 'group') {
-                    const pairs = pickedDocIds.map((docId, idx) => {
-                        const picker = pickedPlayers[idx] || `Member ${idx + 1}`;
-                        const pickedName = poolMap[docId] || "(Deleted from Pool)";
-                        return `${picker.toUpperCase()} → ${pickedName.toUpperCase()}`;
-                    });
-                    return `<div class="picked-reveal-box">🎁 ${pairs.join("<br>🎁 ")}</div>`;
-                } else {
-                    const pickedName = poolMap[pickedDocIds[0]] || "(Deleted from Pool)";
-                    return `<div class="picked-reveal-box">🎁 Nabunot: ${pickedName.toUpperCase()}</div>`;
-                }
-            }
-
-            // Fallback: check pool items linked via pickedByRegId
-            const linkedPool = poolListCache.filter(p => p.pickedByRegId === regItem.id);
-            if (linkedPool.length > 0) {
-                const names = linkedPool.map(p => p.name.toUpperCase()).join(", ");
-                return `<div class="picked-reveal-box">🎁 Nabunot: ${names}</div>`;
-            }
-
-            // Legacy or not yet picked
-            if (isRegistrationPicked(regItem)) {
-                return `<div class="picked-reveal-box" style="color:#888; border-color:#ccc; background:#f5f5f5;">🎁 Hindi naka-record (Lumang version)</div>`;
-            }
-            return `<div class="picked-reveal-box" style="color:#888; border-color:#ccc; background:#f5f5f5;">⏳ Hindi pa nakakabunot</div>`;
-        }
-
         // --- HELPER: CHECK IF A POOL ITEM IS TRULY UNLINKED ---
         function isPoolItemUnlinked(poolItem) {
             if (!poolItem.isTaken) return false;
 
+            // If it has a pickedByRegId, check if that registration still exists
             if (poolItem.pickedByRegId) {
                 const activeRegIds = new Set(regListCache.map(r => r.id));
                 return !activeRegIds.has(poolItem.pickedByRegId);
             }
 
+            // If it has NO pickedByRegId (old version), only flag as unlinked if there are NO legacy registrations left
             const hasLegacyRegs = regListCache.some(isLegacyPicked);
             return !hasLegacyRegs;
         }
 
-        // --- MANUAL MARK AS PICKED ---
+        // --- MANUAL MARK AS PICKED (FOR WAITING ITEMS) ---
         window.markAsPickedManually = async function(regId) {
             const reg = regListCache.find(r => r.id === regId);
             if (!reg) return;
@@ -730,14 +644,12 @@
                 }
 
                 const timeStr = item.timestamp ? new Date(item.timestamp.toDate()).toLocaleTimeString() : 'Just now';
-                const pickedRevealHtml = showPicks ? getPickedNamesHtml(item) : '';
 
                 html += `
                     <div class="list-item">
                         <div style="flex: 1; padding-right: 10px;">
                             <span style="font-weight:600; color:var(--c-teal); display:block; word-wrap: break-word;">${nameDisplay.toUpperCase()}</span>
                             <div style="font-size:0.7rem; color:#888;">${timeStr} • ${item.mode ? item.mode.toUpperCase() : 'SOLO'}</div>
-                            ${pickedRevealHtml}
                         </div>
                         <div class="item-actions">
                             ${badgeHtml}
@@ -899,7 +811,6 @@
                 });
 
                 renderPoolList();
-                if (showPicks) renderParticipantsList(); // Refresh revealed names if pool changes
             });
         }
     </script>
